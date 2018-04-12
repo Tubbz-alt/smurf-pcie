@@ -23,10 +23,18 @@ latency = 0;
 %dwell = 0.07; [resp, f] = etaScan(band, freqs, Nread, dwell, Adrive);
 dwell = 0.0; [resp, f] = etaScan2(band, freqs, Nread, dwell, Adrive);
 
+
+a = abs(resp); idx = find(a==min(a),1);
+F0 = f(idx) %center frequency in MHz
+left = find(f>F0-delF,1); f(left)
+right = find(f>F0+delF,1); f(right)
+
 figure;
 %assume higher level code has established a figure or we create a new one
 subplot(2,2,1)
-plot(f, abs(resp), '.');grid
+plot(f, a, '.');grid
+hold on
+plot(f(idx), a(idx), 'r*');
 title(['Amplitude Response for Band ' num2str(band)])
 xlabel('Frequency (MHz)')
 ylabel('Response (arbs)')
@@ -42,19 +50,20 @@ xlabel('Frequency (MHz)')
 ylabel('Phase')
 Nf = length(f);
 latency = (netPhase(Nf)-netPhase(1))/(f(Nf)-f(1))/2/pi
+hold on
+plot(f(left), netPhase(left), 'gx')
+plot(f(right), netPhase(right), 'g+')
 
 %complex Response Plot
 %figure(3)
 subplot(2,2,3), plot(resp, '.');grid, hold on
-a = abs(resp); idx = find(a==min(a),1), plot(resp(idx),'*r')
-F0 = f(idx) %center frequency in MHz
-left = find(f>F0-delF,1); f(left)
-right = find(f>F0+delF,1); f(right)
+plot(resp(idx),'r*')
 plot(resp(left), 'gx')
 plot(resp(right), 'g+')
 title(['Complex Response for Band ' num2str(band)])
-axis equal
+
 hold off
+axis([-0.5 0.5 -0.5 0.5])
 
 %estimate eta
 eta = (f(right)-f(left))/(resp(right)-resp(left))
@@ -68,6 +77,8 @@ subplot(2,2,4), plot(resp*eta, '.'), grid, hold on
 plot(eta*resp(idx),'r*')
 plot(eta*resp(right), 'g+')
 plot(eta*resp(left), 'gx')
+
+axis([-0.5 0.5 -0.5 0.5])
 
 end
 % end of function etaEstimator
@@ -214,10 +225,8 @@ subchan = 16*band;
 lcaPut([rootPath,'etaScanFreqs'],f);
 lcaPut([rootPath,'etaScanAmplitude'],Adrive);
 lcaPut([rootPath,'etaScanChannel'],subchan);
-lcaPut([rootPath,'etaScanDwell'],dwell);
+lcaPut([rootPath,'etaScanDwell'],0);
 
-% run the etaScan
-lcaPut([rootPath,'runEtaScan'],1);
 
 %% SHOULD MONITOR RESULTS INSTEAD OF ETASCANINPROGRESS PV TO DETERMINE WHEN ETASCAN COMPLETES
 %% Monitor etaScanInProgress register to figure out when scan on this channel is complete.
@@ -231,6 +240,9 @@ etaScanProgressPV='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[
 lcaSetMonitor(etaScanProgressPV);
 val0=lcaGet(etaScanProgressPV);
 
+% run the etaScan
+lcaPutNoWait([rootPath,'runEtaScan'],1);
+
 disp('-> Waiting for etaScan to start...');
 
 % check if etaScan has already started or not
@@ -241,9 +253,25 @@ end
 while true
     try lcaNewMonitorWait(etaScanProgressPV)
         val=lcaGet(etaScanProgressPV);
-    catch
-        errs = lcaLastError();
-        handleErrors(errs);
+    catch errs
+        if errs.identifier == 'labca:timedOut' 
+            lcaPutNoWait([rootPath,'runEtaScan'],1);
+            disp(' ')
+            disp(' ')
+            disp(' ')
+            disp(' ')
+            disp('rearm')
+            disp(' ')
+            disp(' ')
+            disp(' ')
+            disp(' ')
+        else
+            
+    %         errs = lcaLastError();
+            fprintf(1,'The identifier was:\n%s',errs.identifier);
+            fprintf(1,'There was an error! The message was:\n%s',errs.message);
+            handleErrors(errs);
+        end
     end
     % need to make sure etaScan was actually started before 
     % looking for its end

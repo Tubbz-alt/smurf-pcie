@@ -48,7 +48,7 @@ function setupDaqMux( rootPath, type, varargin )
     
     lcaPut([root,':AMCc:FpgaTopLevel:AppTop:DaqMuxV2[0]:InputMuxSel[0]'], daqMuxChannel0)
     lcaPut([root,':AMCc:FpgaTopLevel:AppTop:DaqMuxV2[0]:InputMuxSel[1]'], daqMuxChannel1)
-    lcaPut([root,':AMCc:StreamDataFormat0'], dataType)
-    lcaPut([root,':AMCc:StreamDataFormat1'], dataType)
+%     lcaPut([root,':AMCc:StreamDataFormat0'], dataType)
+%     lcaPut([root,':AMCc:StreamDataFormat1'], dataType)
 
 end

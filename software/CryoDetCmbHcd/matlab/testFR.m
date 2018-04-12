@@ -235,21 +235,11 @@ function [frameFreq,frameFreqError,frameStrobe] = getFrame( rootPath )
 
     time=tsamp*(0:1:data_length-1);
 
-    daqMuxChannel0 = 22; % +22 to set debug stream
-    daqMuxChannel1 = 23;
-    setBufferSize(data_length)
-    
-    lcaPut([root,':AMCc:FpgaTopLevel:AppTop:DaqMuxV2[0]:InputMuxSel[0]'],daqMuxChannel0)
-    lcaPut([root,':AMCc:FpgaTopLevel:AppTop:DaqMuxV2[0]:InputMuxSel[1]'],daqMuxChannel1)
+    setupDaqMux( 'mitch_epics', 'debug', [], data_length);
+    results       = readStreamData( 'mitch_epics', data_length); 
 
-    %triggerDM
-    lcaPut([root, ':AMCc:FpgaTopLevel:AppTop:AppCore:CmdDacSigTrigArm'],1);
-    pause(1)
-    
-    streamSize = lcaGet(DMBufferSizePV);
-    
-    freqWord = lcaGet('mitch_epics:AMCc:Stream0', streamSize);
-    freqErrorWord = lcaGet('mitch_epics:AMCc:Stream1', streamSize);
+    freqWord      = results(1,:);
+    freqErrorWord = results(2,:);
     
     % data is even, strobe is odd, apparently.  
 % % %     freq=freqWord(1:2:end);
