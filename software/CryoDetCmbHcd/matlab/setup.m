@@ -2,7 +2,7 @@
 % s
 function setup( band )
     if( ~exist('band', 'var' ) )
-        band = 3;
+        band = 2;
     end
 
     try
@@ -21,6 +21,7 @@ function setup( band )
     lcaPut([root,'feedbackGain'], num2str(256));
     lcaPut([root,'feedbackPolarity'], num2str(1));
     
+    
 
 % disable all DAC
     for i = 0:8
@@ -28,15 +29,15 @@ function setup( band )
         lcaPut(pv, 'OutputOnes');
     end
 
-% disable all LO
-    for i = 0:3
-        if i == band
-            % leave this one on
-       else
-            pv = sprintf('mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:MicrowaveMuxCore[0]:PLL[%i]:REG[4]', i);
-           lcaPut(pv, hex2dec('30008BC4'));
-        end
-    end
+% % disable all LO
+%     for i = 0:3
+%         if i == band
+%             % leave this one on
+%        else
+%             pv = sprintf('mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:MicrowaveMuxCore[0]:PLL[%i]:REG[4]', i);
+%            lcaPut(pv, hex2dec('30008BC4'));
+%         end
+%     end
 
 % enable DAC, PLL, map ADC for a particular band
     root='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:CryoAdcMux[0]:';
@@ -71,8 +72,8 @@ function setup( band )
 
         case 3
             %%%  Ch4 5.5-6GHz %%%
-            lcaPut([root,'ChRemap[0]'] , num2str(8));
-            lcaPut([root,'ChRemap[1]'] , num2str(9));
+            lcaPut([root,'ChRemap[0]'] , num2str(4));
+            lcaPut([root,'ChRemap[1]'] , num2str(5));
             lcaPut('mitch_epics:AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdTx:dataOutMux[8]','UserData')
             lcaPut('mitch_epics:AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdTx:dataOutMux[9]','UserData')
 %             lcaPut('mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:MicrowaveMuxCore[0]:PLL[3]:REG[4]',hex2dec('30008B84'))
@@ -88,6 +89,9 @@ function setup( band )
             lcaPut('mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:MicrowaveMuxCore[0]:PLL[2]:REG[4]',hex2dec('30008B84'))
 
     end
-
+%     lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','dspEnable'], num2str(1));
+%     lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable1'], num2str(1));
+%     lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable2'], num2str(1));
+%     lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable3'], num2str(1));
     readFpgaStatus( root )
 end
