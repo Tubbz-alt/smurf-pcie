@@ -26,13 +26,8 @@ function configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feed
         freq = frequency_mhz;
     end
     
-    % frequency is written in unsigned number
-    if freq < 0
-        freq = freq + sub_band;
-    end
-    
-    freq = floor((freq./sub_band)*2^24);
-    lcaPut( [pvRoot, 'centerFrequency'], freq );
+freq
+    lcaPut( [pvRoot, 'centerFrequencyMHz'], freq );
     
     % amp 0 - 15
     if amplitude > 15
@@ -55,9 +50,7 @@ function configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feed
     while( phase < -180 )
         phase = phase + 360;
     end
-
-    phase = phase./180; % normalized -1 to 1
     
-    lcaPut( [pvRoot, 'etaPhase'], floor(phase*2^15) );
+    lcaPut( [pvRoot, 'etaPhaseDegree'], phase );
     
-    lcaPut( [pvRoot, 'etaMag'], floor(etaMag*2^10) );
+    lcaPut( [pvRoot, 'etaMagScaled'], etaMag );

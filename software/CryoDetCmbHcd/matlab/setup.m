@@ -5,6 +5,12 @@ function setup( band )
         band = 2;
     end
 
+    if 1
+        addpath('/afs/slac/g/lcls/package/pyrogue/control-server/pyrogue-control-server.git/utils/matlab/epics');
+    else
+        addpath('/afs/slac/g/lcls/package/pyrogue/control-server/dev2/utils/matlab/epics');
+    end 
+
     try
         lcaClear
     catch e
