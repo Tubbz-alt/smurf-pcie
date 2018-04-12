@@ -5,7 +5,7 @@ function setup( band )
         band = 2;
     end
 
-    if 1
+    if 0
         addpath('/afs/slac/g/lcls/package/pyrogue/control-server/pyrogue-control-server.git/utils/matlab/epics');
     else
         addpath('/afs/slac/g/lcls/package/pyrogue/control-server/dev2/utils/matlab/epics');
@@ -23,6 +23,7 @@ function setup( band )
     lcaPut([root,'iqSwapIn'], num2str(1));
     lcaPut([root,'iqSwapOut'], num2str(1));
     lcaPut([root,'refPhaseDelay'], num2str(5));
+    lcaPut([root,'refPhaseDelayFine'], num2str(57));
     lcaPut([root,'toneScale'], num2str(2));
     lcaPut([root,'feedbackGain'], num2str(256));
     lcaPut([root,'feedbackPolarity'], num2str(1));
