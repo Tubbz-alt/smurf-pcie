@@ -16,19 +16,10 @@ function [data] = readAdcData( rootPath, adcNumber, varargin )
         dataLength = varargin{1};     
     end
 
-
-    C = strsplit(rootPath, ':');
-    root = C{1};
-
     setupDaqMux( rootPath, 'adc', adcNumber, dataLength );   
- 
-    %triggerDM
-    lcaPut([root, ':AMCc:FpgaTopLevel:AppTop:AppCore:CmdDacSigTrigArm'],1);
-    pause(1)
 
-    streamSize = lcaGet(DMBufferSizePV);
+    results = readStreamData( rootPath, dataLength); 
     
-    Qdata=lcaGet('mitch_epics:AMCc:Stream0', streamSize);
-    Idata=lcaGet('mitch_epics:AMCc:Stream1', streamSize);
-    
-    data = Idata + j.*Qdata;
+    data = results(2,:) + 1i.*results(1,:);
+
+end
