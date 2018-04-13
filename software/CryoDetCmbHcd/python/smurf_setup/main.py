@@ -1,11 +1,12 @@
 def do_init():
     """                                                                        
 Initialize SMuRF."""
-    pass
+    print('Initializing...')
 
-def smurf_setup():
+def smurf_setup(init):
     """                                                                        
 Run complete SMuRF setup."""
 
-    # initialize the SMuRF
-    do_init()
+    if init:
+        # initialize the SMuRF based on input from control file
+        do_init()
