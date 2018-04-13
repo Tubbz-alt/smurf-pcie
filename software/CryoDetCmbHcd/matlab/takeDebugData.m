@@ -57,7 +57,12 @@ function takeDebugData( rootPath, fileName, varargin )
     
     disp('Setting file name...')
 %     lcaPut([root, ':AMCc:streamDataWriter:dataFile'], double('/tmp/test.dat'))
-    lcaPut([root, ':AMCc:streamDataWriter:dataFile'], double(fullPath))
+
+    % must write full array here
+    charArray = double(fullPath);
+    writeData = zeros(1,300);
+    writeData(1:length(charArray)) = charArray;
+    lcaPut([root, ':AMCc:streamDataWriter:dataFile'], writeData)
 
     disp(['Opening file...',fullPath])
     lcaPut([root, ':AMCc:streamDataWriter:open'], 'True')
