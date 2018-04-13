@@ -22,11 +22,11 @@ project = 'setup_smurf'
 copyright = '2018, Shawn W. Henderson, Cyndia Yu, Sofia Fatigoni'
 author = 'Shawn W. Henderson, Cyndia Yu, Sofia Fatigoni'
 
+from smurf_setup import __version__
 # The short X.Y version
-version = ''
+version = __version__
 # The full version, including alpha/beta/rc tags
-release = '1.0'
-
+release = version
 
 # -- General configuration ---------------------------------------------------
 
