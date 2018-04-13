@@ -1,7 +1,6 @@
 # local
 from . import util
 from . import config
-from .main import smurf_setup
 
 # global
 import epics
