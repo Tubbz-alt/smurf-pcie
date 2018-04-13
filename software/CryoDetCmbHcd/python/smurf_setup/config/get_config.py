@@ -6,7 +6,10 @@ import io
 # do we want to hardcode key names?
 
 class SmurfConfig:
-    """Initialize, read, or dump a SMuRF config file."""
+    """Initialize, read, or dump a SMuRF config file.
+       Will be updated to not require a json, which is unfortunate
+
+    """
 
     def __init__(self, filename=None):
         self.filename = filename
@@ -24,8 +27,17 @@ class SmurfConfig:
             with open(self.filename) as config_file:
                 loaded_config = json.load(config_file)
             
-            # put in some logic here to make sure parameters in experiment file match the parameters we're looking for
-            self.config = loaded_config
+            # put in some logic here to make sure parameters in experiment file match 
+            # the parameters we're looking for
+
+    def update(self, key, val):
+        """Updates a single key in the config
+
+           Args:
+              key (any): key to update in the config dictionary
+              val (any): value to assign to the given key
+        """
+        self.config[key] = val
 
     def write(self, outputfile):
         """Dumps the current config to a file
