@@ -23,10 +23,11 @@ function setup( band )
     lcaPut([root,'iqSwapIn'], num2str(1));
     lcaPut([root,'iqSwapOut'], num2str(1));
     lcaPut([root,'refPhaseDelay'], num2str(5));
-    lcaPut([root,'refPhaseDelayFine'], num2str(57));
+    lcaPut([root,'refPhaseDelayFine'], num2str(47));
     lcaPut([root,'toneScale'], num2str(2));
     lcaPut([root,'feedbackGain'], num2str(256));
     lcaPut([root,'feedbackPolarity'], num2str(1));
+    lcaPut([root, 'bandCenterMHz'], num2str(4250 + 500*band));
     
     
 
