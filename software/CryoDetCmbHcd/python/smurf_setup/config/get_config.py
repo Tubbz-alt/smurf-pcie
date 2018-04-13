@@ -16,7 +16,11 @@ class SmurfConfig:
             self.read(update=True)
 
     def read(self, update=False):
-        ## read file and update the configuration ##
+        """Reads config file and updates the configuration.
+
+           Args:
+              update (bool): Whether or not to update the configuration.
+        """
         if update:
             with open(self.filename) as config_file:
                 loaded_config = json.load(config_file)
@@ -25,6 +29,11 @@ class SmurfConfig:
             self.config = loaded_config
 
     def write(self, outputfile):
+        """Dumps the current config to a file
+
+           Args:
+              outputfile (str): The name of the file to save the configuration to.
+        """
         ## dump current config to outputfile ##
         with io.open(outputfile, 'w', encoding='utf8') as out_file:
             str_ = json.dumps(self.config, indent = 4, separators = (',', ': '))
