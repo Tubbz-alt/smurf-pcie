@@ -10,8 +10,6 @@ Welcome to setup_smurf's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
-
 Indices and tables
 ==================
 

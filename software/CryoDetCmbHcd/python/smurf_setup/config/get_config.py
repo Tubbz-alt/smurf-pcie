@@ -1,13 +1,12 @@
 import json
 import io
-import util
 
 # read or dump a config file
 # not yet tested
 # do we want to hardcode key names?
 
 class SmurfConfig:
-    ## initialize, read, or dump a config file
+    """Initialize, read, or dump a SMuRF config file."""
 
     def __init__(self, filename=None):
         self.filename = filename
@@ -39,3 +38,27 @@ class SmurfConfig:
             str_ = json.dumps(self.config, indent = 4, separators = (',', ': '))
             out_file.write(to_unicode(str_))
 
+    def has(self, key):
+        """Reports if configuration has requested key.
+
+           Args:
+              key (any): key to check for in configuration dictionary.
+        """
+        
+        if key in self.config:
+            return True
+        else:
+            return False
+
+    def get(self, key):
+        """Returns configuration entry for requested key.  Returns
+           None if key not present in configuration.
+
+           Args:
+              key (any): key whose configuration entry to retrieve.
+        """
+        
+        if self.has(key):
+            return self.config[key]
+        else:
+            return None

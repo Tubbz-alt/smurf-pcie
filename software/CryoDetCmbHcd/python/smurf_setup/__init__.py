@@ -1,6 +1,12 @@
+"""This module handles SMuRF setup.
+"""
+
+__version__ = '1.1'
+
 # local
-from . import util
 from . import config
+from . import util
+
 
 # global
 import epics
