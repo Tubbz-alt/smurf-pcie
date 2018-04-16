@@ -13,7 +13,7 @@ Initialize SMuRF."""
     rootEpics = smurfInitCfg['epics_root']
     #rootEpics_SysgenCryo = rootEpics + ""
 
-
+    # read these from a PV list
     ca_put(rootEpics_SysgenCryo + 'iqSwapIn', smurfInitCfg['iqSwapIn'])
     ca_put(rootEpics_SysgenCryo + 'iqSwapOut', smurfInitCfg['iqSwapOut'])
     ca_put(rootEpics_SysgenCryo + 'refPhaseDelay', smurfInitCfg['refPhaseDelay'])
@@ -79,28 +79,34 @@ Run complete SMuRF setup."""
             # initialize the SMuRF based on input from control file
             init(smurfCfg=smurfCfg)
 
-    # find the frequencies of resonances
-    if smurfCfg.has('findFreqs'):
-        smurfFreqCfg = smurfCfg.get('findFreqs')
-        if 'do_findFreqs' in smurfFreqCfg and smurfFreqCfg['do_findFreqs']:
-            # find the frequencies and output to data file (to do: create these data directories)
-            findFreqs(smurfCfg=smurfCfg)
+    #include a list of stages to do?
+    stage_list = smurfCfg.get('do_stages')['stageList']
+    for stage in stage_list:
+        smurfCfg[stage]['do_' + stage] = 1
+        #someone else can do this in a cleaner way
 
-   # optimize the RF power for each resonance
-    if smurfCfg.has('optimizePowers'):
-        smurfPowerCfg = smurfCfg.get('optimizePowers')
-        if 'do_optimizePowers' in smurfPowerCfg and smurfPowerCfg['do_optimizePowers']:
-            optimizePowers(smurfCfg=smurfCfg)
+        # find the frequencies of resonances
+        if smurfCfg.has('findFreqs'):
+            smurfFreqCfg = smurfCfg.get('findFreqs')
+            if 'do_findFreqs' in smurfFreqCfg and smurfFreqCfg['do_findFreqs']:
+                # find the frequencies and output to data file (to do: create these data directories)
+                findFreqs(smurfCfg=smurfCfg)
 
-   # calculate eta parameters
-    if smurfCfg.has('etaParams'):
-        smurfEtaCfg = smurfCfg.get('etaParams')
-        if 'do_etaParams' in smurfEtaCfg and smurfEtaCfg['do_etaParams']:
-            etaParams(smurfCfg=smurfCfg)
+       # optimize the RF power for each resonance
+        if smurfCfg.has('optimizePowers'):
+            smurfPowerCfg = smurfCfg.get('optimizePowers')
+            if 'do_optimizePowers' in smurfPowerCfg and smurfPowerCfg['do_optimizePowers']:
+                optimizePowers(smurfCfg=smurfCfg)
 
-   # tune the fluxramp
-    if smurfCfg.has('tuneFluxRamp'):
-        smurfFRCfg = smurfCfg.get('tuneFluxRamp')
-        if 'do_tuneFluxRamp' in smurfFRCfg and smurfFRCfg['do_tuneFluxRamp']:
-            tuneFluxRamp(smurfCfg=smurfCfg)
+       # calculate eta parameters
+        if smurfCfg.has('etaParams'):
+            smurfEtaCfg = smurfCfg.get('etaParams')
+            if 'do_etaParams' in smurfEtaCfg and smurfEtaCfg['do_etaParams']:
+                etaParams(smurfCfg=smurfCfg)
+
+       # tune the fluxramp
+        if smurfCfg.has('tuneFluxRamp'):
+            smurfFRCfg = smurfCfg.get('tuneFluxRamp')
+            if 'do_tuneFluxRamp' in smurfFRCfg and smurfFRCfg['do_tuneFluxRamp']:
+                tuneFluxRamp(smurfCfg=smurfCfg)
 
