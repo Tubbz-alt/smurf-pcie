@@ -33,9 +33,39 @@ Initialize SMuRF."""
     rootEpics_ADC = rootEpcs + ":AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:CryoAdcMux[0]:"
     # enable DAC, PLL, map ADC for bands; to do here
 
-    return
 
+def findFreqs(smurfCfg):
+    """find resonance frequencies
+    """
 
+    print('Finding frequencies...')
+
+    smurfFreqCfg = smurfCfg.get('findFreqs')
+
+def optimizePowers(smurfCfg):
+    "optimize power level for each resonator
+    maximize dF for RF power level
+    "
+
+    print('Optimizing powers...')
+    
+    smurfPowerCfg = smurfCfg.get('optimizePowers')
+
+def etaParams(smurfCfg):
+    "calculate eta parameters for resonances
+    "
+
+    print('Calculating eta parameters...')
+    
+    smurfEtaCfg = smurfCfg.get('etaParams')
+
+def tuneFluxRamp(smurfCfg):
+    "tune the flux ramp
+    "
+
+    print('Setting up the flux ramp...')
+
+    smurfFRCfg = smurfCfg.get('tuneFluxRamp')
 
 
 def setup(smurfCfg):
@@ -48,3 +78,29 @@ Run complete SMuRF setup."""
         if 'do_init' in smurfInitCfg and smurfInitCfg['do_init']:
             # initialize the SMuRF based on input from control file
             init(smurfCfg=smurfCfg)
+
+    # find the frequencies of resonances
+    if smurfCfg.has('findFreqs'):
+        smurfFreqCfg = smurfCfg.get('findFreqs')
+        if 'do_findFreqs' in smurfFreqCfg and smurfFreqCfg['do_findFreqs']:
+            # find the frequencies and output to data file (to do: create these data directories)
+            findFreqs(smurfCfg=smurfCfg)
+
+   # optimize the RF power for each resonance
+    if smurfCfg.has('optimizePowers'):
+        smurfPowerCfg = smurfCfg.get('optimizePowers')
+        if 'do_optimizePowers' in smurfPowerCfg and smurfPowerCfg['do_optimizePowers']:
+            optimizePowers(smurfCfg=smurfCfg)
+
+   # calculate eta parameters
+    if smurfCfg.has('etaParams'):
+        smurfEtaCfg = smurfCfg.get('etaParams')
+        if 'do_etaParams' in smurfEtaCfg and smurfEtaCfg['do_etaParams']:
+            etaParams(smurfCfg=smurfCfg)
+
+   # tune the fluxramp
+    if smurfCfg.has('tuneFluxRamp'):
+        smurfFRCfg = smurfCfg.get('tuneFluxRamp')
+        if 'do_tuneFluxRamp' in smurfFRCfg and smurfFRCfg['do_tuneFluxRamp']:
+            tuneFluxRamp(smurfCfg=smurfCfg)
+
