@@ -1,4 +1,6 @@
-import os, time, subprocess
+import os
+import time
+import subprocess
 import smurf_setup.config as config
 
 
