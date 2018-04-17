@@ -3,15 +3,16 @@ import epics
 """Epics wrapper for configuring a single cryo channel
 """
 
-CryoChannels = "AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:CryoChannels:"
+SysgenCryo = "AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:"
+CryoChannels = SysgenCryo + "CryoChannels:"
 
 
 
-def configCryoChannel(root, channelNo, frequencyMhz, ampl, feedbackEnable, etaPhase, etaMag):
+def configCryoChannel(smurfCfg, channelNo, frequencyMhz, ampl, feedbackEnable, etaPhase, etaMag):
     """written to match configCryoChannel.m
 
        Args:
-        root (str): EPICS root path eg mitch_epics
+        smurfCfg (config object): configuration object (really, a dictionary)
         channelNo (int): cryo channel number (0 .. 511)
         frequencyMhz (float): frequency within subband (-19.2 .. 19.2)
         amplitude (int): ADC output amplitude (0 .. 15)
@@ -21,11 +22,13 @@ def configCryoChannel(root, channelNo, frequencyMhz, ampl, feedbackEnable, etaPh
     """
 
     # construct the pvRoot
+    smurfInitCfg = smurfCfg.get('init')
+    root = smurfInitCfg['epics_root']
     epicsRoot = root + CryoChannels + 'CryoChannel[%i]:' % channelNo
 
-    n_subband = 32
-    band = 614.4 # MHz
-    sub_band = band / (n_subband / 2) # width of each subband
+    n_subband = epics.caget(root + SysgenCryo + 'numberSubBands') # should be 32
+    band = epics.caget(root + SysgenCryo + 'digitizerFrequency') # 614.4 MHz
+    sub_band = band / (n_subband/2) # width of each subband
 
     ## some checks to make sure we put in values within the correct ranges
 

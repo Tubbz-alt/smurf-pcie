@@ -127,7 +127,7 @@ class smurfTune:
         return s
 
 
-    def filename(self, nickname=None, ctime=None, absolute=False):
+    def filename(self, suffix = None, nickname=None, ctime=None, absolute=False):
         """create timestamped filenames in the output folder of this tuning run
            
            Args:
@@ -143,6 +143,8 @@ class smurfTune:
         strname = time_stamp
         if nickname is not None:
             strname = strname + '_' + nickname
+
+        strname = strname + suffix
 
         if (absolute):
             s = os.path.join(self.output_dir, strname)
