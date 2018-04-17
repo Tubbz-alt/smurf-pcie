@@ -1,4 +1,46 @@
-from util.getput import *
+import epics
+
+# maybe we'll read these from a file; that would be sweet
+SysgenCryoBase = ":AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:"
+dataOutMux = ":AMCc:FpgaToplevel:AppTop:AppTopJesd[0]:JesdTx:"
+CryoADCMux = ":AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:CryoAdcMux[0]:"
+
+def enable_dac_adc_map(epics_root, band_no):
+    """stupid function to do the DAC/PLL enable, ADC remapping for a single band
+       hopefully we can ditch this function soon
+
+       Args:
+        epics_root (str): address of epics root
+        band_no (int): band to set up
+    """
+    if band_no == 0:
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[0]', 2)
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[1]', 3)
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[2]', 'UserData')
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[3]', 'UserData')
+    elif band_no == 1:
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[0]', 0)
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[1]', 1)
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[0]', 'UserData')
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[1]', 'UserData')
+        epics.caput(epics_root + SysgenCryoBase + 'iqSwapIn', 0)
+    elif band_no == 2:
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[0]', 6)
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[1]', 7)
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[6]', 'UserData')
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[7]', 'UserData')
+    elif band_no == 3:
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[0]', 4)
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[1]', 5)
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[8]', 'UserData')
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[9]', 'UserData')
+        epics.caput(epics_root + SysgenCryoBase + 'iqSwapIn', 0)
+    else: # default to band_no = 2 for now
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[0]', 6)
+        epics.caput(epics_root + CryoADCMux + 'ChRemap[1]', 7)
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[6]', 'UserData')
+        epics.caput(epics_root + dataOutMux + 'dataOutMux[7]', 'UserData')
+    return
 
 def init(smurfCfg):
     """                                                                        
@@ -11,27 +53,31 @@ Initialize SMuRF."""
     #    print(band)
 
     rootEpics = smurfInitCfg['epics_root']
-    #rootEpics_SysgenCryo = rootEpics + ""
+    root_SysgenCryo = rootEpics + SysgenCryoBase
 
     # read these from a PV list
-    ca_put(rootEpics_SysgenCryo + 'iqSwapIn', smurfInitCfg['iqSwapIn'])
-    ca_put(rootEpics_SysgenCryo + 'iqSwapOut', smurfInitCfg['iqSwapOut'])
-    ca_put(rootEpics_SysgenCryo + 'refPhaseDelay', smurfInitCfg['refPhaseDelay'])
-    ca_put(rootEpics_SysgenCryo + 'refPhaseDelayFine', smurfInitCfg['refPhaseDelayFine'])
-    ca_put(rootEpics_SysgenCryo + 'toneScale', smurfInitCfg['toneScale'])
-    ca_put(rootEpics_SysgenCryo + 'feedbackGain', smurfInitCfg['feedbackGain'])
-    ca_put(rootEpics_SysgenCryo + 'feedbackPolarity', smurfInitCfg['feedbackPolarity'])
-    
+    SysgenCryoPVs = ['iqSwapIn', 'iqSwapOut', 'refPhaseDelay', 'toneScale', \
+            'feedbackGain', 'feedbackPolarity']
+    for pv in SysgenCryoPVs:
+        epics.caput(root_SysgenCryo + pv, smurfInitCfg[pv])
+
+    #epics.caput(rootEpics_SysgenCryo + 'iqSwapIn', smurfInitCfg['iqSwapIn'])
+    # etc (you get the idea, if you want to switch it back) 
+
     for band_no in smurfInitCfg['bands']:
-        ca_put(rootEpics_SysgenCryo + 'bandCenterMHz', 4250 + 500 * band_no)
+        epics.caput(root_SysgenCryo + 'bandCenterMHz', 4250 + 500 * band_no)
         # this is currently rewriting
 
-    #for i in range(9):
-        #rootEpics_DAC = rootEpics + ":AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdTx:" + "dataOutMux[]".format(i)
-        #ca_put(rootEpics_DAC, 'OutputOnes') # this is still hilarious to me
+    for dacno in range(9):
+        epics.caput(rootEpics + dataOutMux + 'dataOutMux[%i]' % dacno, 'OutputOnes')
 
-    rootEpics_ADC = rootEpcs + ":AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:CryoAdcMux[0]:"
-    # enable DAC, PLL, map ADC for bands; to do here
+    # enable DAC, PLL, ADC mapping for single band
+    rootADC = rootEpics + CryoADCMux
+    for band_no in smurfInitCfg['bands']:
+        enable_dac_adc_map(band_no)
+
+    #readFpgaStatus(epics_root)
+
 
 
 def findFreqs(smurfCfg):
@@ -80,7 +126,8 @@ Run complete SMuRF setup."""
             init(smurfCfg=smurfCfg)
 
     #include a list of stages to do?
-    stage_list = smurfCfg.get('do_stages')['stageList']
+    smurfStageCfg = smurfCfg.get('do_stages')
+    stage_list = smurfStageCfg['stageList']
     for stage in stage_list:
         smurfCfg[stage]['do_' + stage] = 1
         #someone else can do this in a cleaner way
