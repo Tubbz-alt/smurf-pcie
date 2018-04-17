@@ -63,8 +63,8 @@ class ETAScanDisplay(Display):
 
         self.plot2 = pg.PlotWidget()
         self.plot2.setLabels(
-            title='Amplitude Response for Band',
-            left='Phase',
+            title='Phase Response for Band',
+            left='Phase (rad)',
             bottom='Frequency (MHz)')
         self.plot2.showGrid(x=True, y=True)
         layout = QtGui.QHBoxLayout(self.ui.frm_plot2)
@@ -168,8 +168,12 @@ class ETAScanDisplay(Display):
         except ValueError:
             delF = 0.05
 
-        resp = I + 1j*Q
-        aresp = np.abs(resp)
+        resp     = I + 1j*Q
+        aresp    = np.abs(resp)
+        minIdx   = np.where(aresp == min(aresp))[0]
+        F0       = freqs[minIdx]
+        left     = np.where(freqs > (F0-delF))[0][0]
+        right    = np.where(freqs > (F0+delF))[0][0]
         
         white = pg.mkColor((255, 255, 255))
         red = pg.mkColor((255, 0, 0))
@@ -179,17 +183,17 @@ class ETAScanDisplay(Display):
         plot_lr_kwargs = {'symbol': 'x', 'symbolSize': 10, 'symbolPen': pg.mkPen(color=green), 'symbolBrush': pg.mkBrush(color=green)}
 
         self.plot1.plot(freqs, np.abs(resp), clear=True, pen=None, **plot_kwargs)
+        self.plot1.plot(freqs[minIdx], np.abs(resp[minIdx]), pen=None, **plot_central_kwargs)
 
-        self.plot2.plot(freqs, np.arctan2(Q, I), clear=True, pen=None, **plot_kwargs)
+        self.plot2.plot(freqs, np.unwrap(np.angle(resp)), clear=True, pen=None, **plot_kwargs)
+        self.plot2.plot(freqs[minIdx], np.angle(resp[minIdx]), pen=None, **plot_central_kwargs)
+        self.plot2.plot([freqs[left]], [np.angle(resp[left])], **plot_lr_kwargs)
+        self.plot2.plot([freqs[right]], [np.angle(resp[right])], **plot_lr_kwargs)
 
+        spot = resp[minIdx]
         self.plot3.plot(resp.real, resp.imag, clear=True, pen=None, **plot_kwargs)
-        idx = np.where(aresp == min(aresp))[0]
-        spot = resp[idx]
         self.plot3.plot(spot.real, spot.imag, pen=None, **plot_central_kwargs)
 
-        F0 = freqs[idx]
-        left = np.where(freqs > (F0-delF))[0][0]
-        right = np.where(freqs > (F0+delF))[0][0]
 
         spot = resp[left]
         self.plot3.plot([spot.real], [spot.imag], **plot_lr_kwargs)
@@ -207,7 +211,7 @@ class ETAScanDisplay(Display):
 
         self.plot4.plot(data.real, data.imag, clear=True, pen=None, **plot_kwargs)
 
-        spot = eta*resp[idx]
+        spot = eta*resp[minIdx]
         self.plot4.plot(spot.real, spot.imag, pen=None, **plot_central_kwargs)
         spot = eta*resp[left]
         self.plot4.plot([spot.real], [spot.imag], **plot_lr_kwargs)
