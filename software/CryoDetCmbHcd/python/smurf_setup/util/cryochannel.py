@@ -1,6 +1,7 @@
 import epics
+from math import floor
 
-"""Epics wrapper for configuring a single cryo channel
+"""Epics wrappers for working with single cryo channel
 """
 
 SysgenCryo = "AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:"
@@ -73,4 +74,35 @@ def all_off(root):
     """
     epicsRoot = root + CryoChannels
     epics.caput(epicsRoot + 'setAmplitudeScales', 0)
+
+def freq_to_subband(freq, band_center, subband_order):
+    """look up subband number of a channel frequency
+
+       Args:
+        freq (float): frequency in MHz
+        band_center (float): frequency in MHz of the band center
+        subband_order (list): order of subbands within the band
+
+       Outputs:
+        subband_no (int): subband (0..31) of the frequency within the band
+        offset (float): offset from subband center
+    """
+
+    # subband_order = [8 24 9 25 10 26 11 27 12 28 13 29 14 30 15 31 0 16 1 17\
+    #        2 18 3 19 4 20 5 21 6 22 7 23]
+    # default order, but this is a PV now so it can be fed in
+
+    try:
+        order = [int(x) for x in subband_order] # convert it to a list
+    except ValueError:
+        order = [8 24 9 25 10 26 11 27 12 28 13 29 14 30 15 31 0 16 1 17\
+            2 18 3 19 4 20 5 21 6 22 7 23]
+
+    # can we pull these hardcodes out?
+    bb = floor((freq - (band_center - 307.2 - 9.6)) / 19.2)
+    offset = freq - (band_center - 307.2) - bb * 19.2
+    
+    subband_no = order[bb]
+    
+    return subband_no, offset
 
