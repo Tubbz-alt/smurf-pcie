@@ -15,6 +15,9 @@ from util.smurftune import *
 SysgenCryo =  "AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:"
 CryoChannels = SysgenCryo + "CryoChannels:"
 
+def on_change(pvname=None, value=None, char_value=None, **kw):
+    return True 
+
 def eta_scan(epics_path, subchan, freqs, drive):
     """scan a small range and get IQ response
     
@@ -32,17 +35,68 @@ def eta_scan(epics_path, subchan, freqs, drive):
     for i in range(len(pv_list)):
         epics.caput(pv_list[i], pv_vals[i])
 
-    # set a monitor on results
-    epics.camonitor()
 
+    while False:
+        # set a monitor
+        epics.camonitor(epics_path + "etaScanResultsReal", writer=None, on_change)
+        epics.caput(epics_path + "runEtaScan", 1)
 
-    
+    I = epics.caget(epics_path + "etaScanResultsReal", count = len(freqs))
+    Q = epics.caget(epics_path + "etaScanResultsImag", count = len(freqs))
 
+    epics.camonitor_clear(epics_path + "etaScanResultsReal")
 
+    if I > 2**23:
+        I = I - 2**24
+    if Q > 2**23:
+        Q = Q - 2**24
+
+    I = I / (2**23)
+    Q = Q / (2**23)
+
+    response = I + 1j * Q
     return response, freqs
 
+def subband_off(smurfCfg, subchan, freqs):
+    """turn off a single subband
 
-def subband_off():
+       Args:
+        smurfCfg (config object)
+        subchan (int): channel number
+        freqs (list): freqs to disable
+    """
+    config_cryo_channel(smurfCfg, subchan, freqs, 0, 0, 0, 0)
+    return
+
+def estimate_params(smurfStageCfg, response, freqs):
+    """estimate eta parameters from a set of scanned frequencies
+
+       Args:
+        smurfStageCfg (config) : stage specific piece of a smurfCfg object
+        response (list?): response (I + i*Q) from eta scan
+        freqs (list): frequencies scanned. same length as response.
+    """
+    abs_response = np.abs(response)
+    idx = abs_response.index(min(abs_response))
+    center_freq = freqs[idx]
+
+    search_width = smurfStageCfg['search_width']
+    left = freqs.index(center_freq - search_width)
+    right = freqs.index(center_freq + search_width)
+
+    net_phase = np.unwrap(np.angle(response))
+
+    latency = (net_phase[-1] - net_phase[0]) / (freqs[-1] - freqs[0])
+
+    eta = (freqs[right] - freqs[left]) / (response[right] - response[left])
+    eta_mag = np.abs(eta)
+    eta_phase = np.angle(eta)
+    eta_phase_deg = eta_phase * 180 / math.pi
+    eta_scaled = eta_mag / 19.2 # take out this hard coded number
+
+    return eta, center_freq, latency, eta_phase_deg, eta_scaled
+
+
 
 class etaParams(SmurfStage):
     """class to tune the eta parameters. Inherits from the more generic tuning
@@ -50,13 +104,9 @@ class etaParams(SmurfStage):
     """
 
     def __init__(self, tuning):
-        super().__init__()
         self._nickname = "eta_params"
 
-        self.tuningname = tuning.name
-        self.outputdir = tuning.output_dir
-        self.outputname = tuning.filename(self._nickname)
-        self.config = tuning.config
+        super().__init__(tuning)
 
         initconfig = self.config.get('init')
         self.epics_root = initconfig['epics_root']
@@ -117,25 +167,32 @@ class etaParams(SmurfStage):
         subband_order = epics.caget(self.epics_root + SysgenCryo \
                 + "subBandOrder")
 
-        resp_all = []
-        freqs_ordered = []
+        results = np.zeros((len(freqs), 7))
 
-        for f in freqs: 
+        for ii in range(len(freqs)):
+            f = freqs[i]
             subband, offset = freq_to_subband(f, band_center, subband_order)
             
             scan_fs = np.arange(offset - sweep_width, offset + sweepwidth,\
                     sweep_df)
 
             resp, f = eta_scan(epics_path, subband * n_subchannels, scan_fs, drive)
+            eta, center_freq, latency, eta_phase_deg, eta_scaled = \
+                    estimate_params(self.stage_config, resp, f)
 
-            resp_all = resp + resp_all
-            freqs_ordered = f + freqs_ordered
+            subband_off(self.config, subband * n_subchannels, scan_fs)
+            results[ii,:] = [center_freq, subband, offset, eta_phase_deg,\
+                    eta_scaled, latency, eta]
+        header = "center_freq, subband_no, offset, eta_phase_deg, eta_scaled,\
+                latency, eta"
 
-        return resp_all, freqs_ordered
+        self.write(results, header) # this was defined in the superclass
 
+        return results
+    
 
     def analyze(self):
-        """convert from etaScan data into parameters
+        """make & save some plots and stuff
         """
 
     def clean(self):

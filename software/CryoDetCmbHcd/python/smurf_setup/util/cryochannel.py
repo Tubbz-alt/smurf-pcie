@@ -9,7 +9,8 @@ CryoChannels = SysgenCryo + "CryoChannels:"
 
 
 
-def configCryoChannel(smurfCfg, channelNo, frequencyMhz, ampl, feedbackEnable, etaPhase, etaMag):
+def config_cryo_channel(smurfCfg, channelNo, frequencyMhz, ampl, \
+        feedbackEnable, etaPhase, etaMag):
     """written to match configCryoChannel.m
 
        Args:
