@@ -15,17 +15,28 @@ from util.smurftune import *
 SysgenCryo =  "AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:"
 CryoChannels = SysgenCryo + "CryoChannels:"
 
-def eta_scan(epics_path, band, freqs, drive):
+def eta_scan(epics_path, subchan, freqs, drive):
     """scan a small range and get IQ response
     
        Args:
         epics_path (str): root path for epics commands for eta scanning
-        band (int): subband number to scan
+        subchan (int): subchannel to scan; should be n_subchan * subband_no
         freqs (list): frequencies to scan over
         drive (int): power at which to scan
     """
 
+    pv_list = ["etaScanFreqs", "etaScanAmplitude", "etaScanChannel", \
+            "etaScanDwell"]
+    pv_vals = [freqs, drive, subchan, 0] # make 0 a variable?
 
+    for i in range(len(pv_list)):
+        epics.caput(pv_list[i], pv_vals[i])
+
+    # set a monitor on results
+    epics.camonitor()
+
+
+    
 
 
     return response, freqs
@@ -115,7 +126,7 @@ class etaParams(SmurfStage):
             scan_fs = np.arange(offset - sweep_width, offset + sweepwidth,\
                     sweep_df)
 
-            resp, f = eta_scan(epics_path, subband, scan_fs, drive)
+            resp, f = eta_scan(epics_path, subband * n_subchannels, scan_fs, drive)
 
             resp_all = resp + resp_all
             freqs_ordered = f + freqs_ordered
