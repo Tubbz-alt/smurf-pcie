@@ -187,13 +187,16 @@ class etaParams(SmurfStage):
                 latency, eta"
 
         self.write(results, header) # this was defined in the superclass
-
+        self.results = results
+        
         return results
     
 
     def analyze(self):
         """make & save some plots and stuff
         """
+        
+        
 
     def clean(self):
         pass

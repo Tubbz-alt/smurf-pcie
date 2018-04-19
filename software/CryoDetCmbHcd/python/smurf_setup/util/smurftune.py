@@ -1,7 +1,7 @@
 import os
 import time
 import subprocess
-import smurf_setup.config as config
+from smurf_setup.config import get_config
 
 
 def make_dir(directory):
@@ -29,7 +29,7 @@ class smurfTune:
 
             else:
                 print("please supply a data directory!")
-                break # unless there's a good generic to stick in here
+                pass # unless there's a good generic to stick in here
 
             
         self.date = time.strftime("%Y%m%d")

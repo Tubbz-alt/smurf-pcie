@@ -29,6 +29,7 @@ class SmurfConfig:
             
             # put in some logic here to make sure parameters in experiment file match 
             # the parameters we're looking for
+                self.config = loaded_config
 
     def update(self, key, val):
         """Updates a single key in the config
