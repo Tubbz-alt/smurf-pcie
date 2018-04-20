@@ -1,7 +1,8 @@
+import os
+import numpy as np
 import smurf_setup.config as config
 from smurf_setup.util.cryochannel import *
-import numpy as np
-from smurf_setup.util.smurf
+from smurf_setup.util.smurftune import SmurfTune
 
 class SmurfStage:
     """initializes, runs, analyzes, and cleans up after a SMuRF tuning stage
@@ -12,10 +13,11 @@ class SmurfStage:
         _required = []
 
         # name associated when writing outputs
-        _nickname = []
+        _nickname = [] 
 
         self.output_dir = tuning.output_dir
-        self.filename = tuning.filename(self._nickname)
+        self.plot_dir = tuning.plot_dir
+        self.filename = tuning.filename(suffix=".txt", nickname=self._nickname)
         self.config = tuning.config
 
     def prepare(self):
@@ -35,7 +37,10 @@ class SmurfStage:
             header (str) : desired header
         """
 
-        filepath = os.join(self.output_dir, self.filename)
+        try:
+            filepath = os.path.join(self.output_dir, self.filename[1])
+        except AttributeError:
+            filepath = os.path.join(self.output_dir, "generic_stage.txt")
 
         np.savetxt(filepath, data, delimiter=',', header=fileheader)
 
