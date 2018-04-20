@@ -9,7 +9,7 @@ from . import util
 
 
 # global
-import epics
+#import epics
 import numpy as np
 import os
 import sys

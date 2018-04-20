@@ -1,7 +1,7 @@
 import os
 import time
 import subprocess
-from smurf_setup.config import get_config
+from smurf_setup.config import SmurfConfig
 
 
 def make_dir(directory):
@@ -26,6 +26,7 @@ class smurfTune:
             #maybe use the config file directory?
             if cfg_file is not None:
                 data_dir = os.path.dirname(cfg_file)
+                self.data_dir = data_dir
 
             else:
                 print("please supply a data directory!")
@@ -44,8 +45,8 @@ class smurfTune:
         self.base_dir = os.path.abspath(data_dir)
 
         # create output and plot directories
-        self.output_dir = os.path.join(self.base_dir, name)
-        self.plot_dir = os.path.join(self.base_dir,'plots',name)
+        self.output_dir = os.path.join(self.base_dir, 'outputs', name)
+        self.plot_dir = os.path.join(self.base_dir,'plots', name)
 
         # name the logfile and create flags for it
         self.log_file = os.path.join(self.data_dir, name + '.log')
@@ -57,10 +58,10 @@ class smurfTune:
             cfg_file = os.path.join(self.base_dir, 'experiment.cfg')
             self.cfg_file = cfg_file
 
-        try:
-            self.config = config.get_config(cfg_file)
-        except:
-            self.config = config.get_generic_config # need to implement this
+        #try:
+        self.config = SmurfConfig(cfg_file)
+        #except:
+            #self.config = config.get_generic_config # need to implement this
 
     def make_dirs(self):
         """make the paths for the output and plot directories for this tuning run
@@ -160,8 +161,8 @@ class smurfTune:
             message (str): message to write to the logfile
             flush (bool): whether to flush immediately
         """
-        if (self.log):
-            self.log.write(message)
+        if (self.log_file):
+            self.log_file.write(message)
             if (flush):
                 self.log.flush()
 
