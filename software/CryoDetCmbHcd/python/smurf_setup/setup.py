@@ -1,5 +1,3 @@
-from .config.get_config import *
-
 def init(smurfCfg):
     """                                                                        
 Initialize SMuRF."""
@@ -10,11 +8,9 @@ Initialize SMuRF."""
     #for band in smurfInitCfg['bands']:
     #    print(band)
 
-def setup(smurfCfg: SmurfConfig):
-    """Run complete SMuRF setup.
-
-    :param smurfCfg: SmurfConfig object loaded with desired setup config.
-    """
+def setup(smurfCfg):
+    """                                                                        
+Run complete SMuRF setup."""
     
     # the parts of the config file specifically addressing initialization
     if smurfCfg.has('init'):
