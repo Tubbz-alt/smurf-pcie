@@ -1,6 +1,7 @@
 
 function [F, dF, fluxRampStrobe] = decodeData(file,swapFdF)
 
+
 % if swapFdF =0 then f stream first, df second
 % if swapFdF=1 then f stream second, dF stream first
 if nargin < 2
@@ -13,15 +14,15 @@ else
     nF=2; nDF=1;
 end
 
-
-rawData = squeeze(processData(file));
+%rawData = squeeze(processData(file));
 %revised processData will not need buffsize parameter, or squeeze function
+[rawData, header] = processData2(file);
 
 %decode strobes
 strobes = floor(rawData/2^30);
 data = rawData - 2^30*strobes;
-ch0Strobe = mod(strobes, 2) ==1;
-fluxRampStrobe = floor(strobes/2);
+ch0Strobe = mod(strobes, 2);
+fluxRampStrobe = floor((strobes-ch0Strobe)/2);
 
 %decode frequencies
 ch0idx = find(ch0Strobe(:,1) == 1);
