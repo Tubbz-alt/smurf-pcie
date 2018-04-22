@@ -3,4 +3,4 @@
 
 __all__ = ["get_config", "get", "set", "read", "write"]
 
-from get_config import SmurfConfig
+from smurf_setup.config.get_config import SmurfConfig

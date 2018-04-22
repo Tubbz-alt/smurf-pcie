@@ -1,4 +1,4 @@
-import epics
+#import epics
 from math import floor
 
 """Epics wrappers for working with single cryo channel
@@ -96,8 +96,8 @@ def freq_to_subband(freq, band_center, subband_order):
     try:
         order = [int(x) for x in subband_order] # convert it to a list
     except ValueError:
-        order = [8 24 9 25 10 26 11 27 12 28 13 29 14 30 15 31 0 16 1 17\
-            2 18 3 19 4 20 5 21 6 22 7 23]
+        order = [8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15,\
+                31, 0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23]
 
     # can we pull these hardcodes out?
     bb = floor((freq - (band_center - 307.2 - 9.6)) / 19.2)

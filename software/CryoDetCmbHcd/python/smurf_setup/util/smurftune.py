@@ -15,7 +15,7 @@ def make_dir(directory):
         os.makedirs(directory)
 
 
-class smurfTune:
+class SmurfTune:
     """generic class based on the MCE tuningData class
     """
 
@@ -103,7 +103,7 @@ class smurfTune:
                             time.asctime(time.gmtime(self.the_time)) + " UTC\n")
                     self.log.write("Dir:   " + self.base_dir + "\n")
                     self.log.write("Name:   " + self.name + "\n")
-                except IOError, (errno, strerror):
+                except IOError:
                     print("Unable to create logfile \"{0}\" (errno: {1}; {2})".\
                             format(self.log_file, errno, strerror))
                     print("Logging disabled!")
@@ -128,7 +128,7 @@ class smurfTune:
         return s
 
 
-    def filename(self, suffix = None, nickname=None, ctime=None, absolute=False):
+    def filename(self, suffix=None, nickname=None, ctime=None, absolute=False):
         """create timestamped filenames in the output folder of this tuning run
            
            Args:

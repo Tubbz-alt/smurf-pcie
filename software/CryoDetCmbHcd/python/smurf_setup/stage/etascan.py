@@ -1,12 +1,13 @@
 import os
 import sys
 import math
-import matplotlib.pyplot as plt # not sure we need this?
+#import matplotlib.pyplot as plt # not sure we need this?
 import numpy as np # pyepics reads stuff as numpy arrays if possible
 import subprocess
-from tuningstage import SmurfStage
-from util.cryochannel import *
-from util.smurftune import *
+#import epics
+from smurf_setup.stage.tuningstage import SmurfStage
+from smurf_setup.util.cryochannel import *
+from smurf_setup.util.smurftune import *
 
 """scan resonances and get eta parameters for locking onto resonances
 """
@@ -36,10 +37,10 @@ def eta_scan(epics_path, subchan, freqs, drive):
         epics.caput(pv_list[i], pv_vals[i])
 
 
-    while False:
+    #while False:
         # set a monitor
-        epics.camonitor(epics_path + "etaScanResultsReal", writer=None, on_change)
-        epics.caput(epics_path + "runEtaScan", 1)
+    #epics.camonitor(epics_path + "etaScanResultsReal", writer=None, on_change)
+    epics.caput(epics_path + "runEtaScan", 1)
 
     I = epics.caget(epics_path + "etaScanResultsReal", count = len(freqs))
     Q = epics.caget(epics_path + "etaScanResultsImag", count = len(freqs))
@@ -108,6 +109,8 @@ class etaParams(SmurfStage):
 
         super().__init__(tuning)
 
+        #super(etaParams, self).__init__() # python 2 for testing
+
         initconfig = self.config.get('init')
         self.epics_root = initconfig['epics_root']
         self.stage_config = tuning.config.get('etaParams')
@@ -137,9 +140,9 @@ class etaParams(SmurfStage):
 
     def run(self):
         n_channels = epics.caget(self.epics_root + SysgenCryo \
-                + "numberChannels" # should be 512 for a 500MHz band
+                + "numberChannels") # should be 512 for a 500MHz band
         n_subbands = epics.caget(self.epics_root + SysgenCryo \
-                + "numberSubBands" # is 32 right now
+                + "numberSubBands") # is 32 right now
 
         n_subchannels = n_channels / n_subbands # 16
 
