@@ -26,7 +26,6 @@ function configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feed
         freq = frequency_mhz;
     end
     
-freq
     lcaPut( [pvRoot, 'centerFrequencyMHz'], freq );
     
     % amp 0 - 15
