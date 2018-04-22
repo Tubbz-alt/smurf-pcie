@@ -2,13 +2,17 @@
 
 % System has 8 500MHz bands, centered on 8 different frequencies.
 % All of our testing so far has been on the band centered at 5.25GHz.
-band0 = 5.25e3;
+
+bandCenterMHz = lcaGet([rootPath,'bandCenterMHz']);
 ctime=ctimeForFile;
-%bands=0:1;
-bands=0:31;
+Adrive=11;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+% bands=[0 16];
+%bands=0:31;
+bands=[9 25 10 26 11 27 12 28 13 29 14 30 15 31 0 16 1 17 2 18 3 19 4 20 5 21 6 22 7];
+%bands=0;
 
 % sweep all bands
-[f,resp]=fullBandAmplSweep(bands);
+[f,resp]=fullBandAmplSweep(bands,Adrive);
 
 % plot
 figure
@@ -52,16 +56,20 @@ save(sweepDataFilename,'f','resp');
 % analyze
 plotsaveprefix=fullfile(resultsDir,num2str(ctime));
 res=findAllPeaks(sweepDataFilename,bands,plotsaveprefix);
-res = res + band0;
+res = res + bandCenterMHz;
 
 disp(['res(MHz) = ',num2str(res)]);
 
 % save resonators to file as list, by band and Foff
-[band, Foff] = f2band(res);
+[band, Foff] = f2band(res,bandCenterMHz);
 
 % bands are interleaved, so let's sort results by frequency, not band
 results=horzcat(band',Foff',res');
 results = sortrows(results,3);
 
-dlmwrite(fullfile(resultsDir,[num2str(ctime),'.res']),double(results),'delimiter','\t','precision','%0.3f');
+resOutFileName = fullfile(resultsDir, [num2str(ctime), '.res']);
+dlmwrite(resOutFileName,double(results),'delimiter','\t','precision','%0.3f');
+%
+system('rm /data/cpu-b000-hp01/cryo_data/data2/current_res');
+system(sprintf('ln -s %s /data/cpu-b000-hp01/cryo_data/data2/current_res', resOutFileName));
 
