@@ -10,7 +10,9 @@ function datadir=dataDirFromCtime(ctime,createDateDir)
     dt = datetime(ctime, 'ConvertFrom', 'posixtime');
     dirdate=datestr(dt,'yyyymmdd');
         
-    datapath=getSMuRFenv('SMURF_DATA');
+    %datapath=getSMuRFenv('SMURF_DATA');
+    datapath = '/home/common/data/cpu-b000-hp01/cryo_data/data2/';
+    
     datadir=fullfile(datapath,dirdate);
         
     if createDateDir
