@@ -12,7 +12,7 @@ function lockedChannels=checkLock(chans)
         chans=chans+1;
     end
 
-    [f,df,frs]=getData(rootPath,2^22);
+    [f,df,frs]=getData(rootPath,2^18);
     % only loop over defined channels
     numChannels=0
     numKilled=0
