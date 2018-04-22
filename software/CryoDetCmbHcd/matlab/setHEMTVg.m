@@ -11,16 +11,22 @@ if bit>524287
     bit=524287
 end
 
-rtmSpiMaxRootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:C_RtmSpiMax:';
+rtmSpiMaxRootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:RtmSpiMax:';
 
 %% set RtmCryoDet
 %lcaPut( [rtmRootPath, 'LowCycle'],  num2str(2)); 
 
 if doCfg
-    lcaPut([rtmSpiMaxRootPath, 'HemtBias DacCtrlReg Ch 33'],num2str(2));
+    lcaPut([rtmSpiMaxRootPath, 'HemtBiasDacCtrlRegCh[33]'],num2str(2));
 end
 
-lcaPut([rtmSpiMaxRootPath, 'HemtBias DacDataReg Ch 33'],num2str(bit));
+lcaPut([rtmSpiMaxRootPath, 'HemtBiasDacDataRegCh[33]'],num2str(bit));
+
+% from fit to Vg versus bits on 4/19/2018 by SWH
+a=1.92751e-06;
+b=-0.000165972;
+Vg=a*bit+b;
+disp(sprintf('-> Set Vg=%0.3f V',Vg));
 
 %        frCfg.(cfgvar{1})=value;
 %    end
