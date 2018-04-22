@@ -9,7 +9,9 @@ function ctime=ctimeForFile(createFileDateDir)
     if createFileDateDir
         % keep data organized by date
         
-        datapath=getenv('SMURF_DATA');
+        %datapath=getenv('SMURF_DATA');
+        
+        datapath = '/home/common/data/cpu-b000-hp01/cryo_data/data2/';
         
         if isempty(datapath)
             error(['ERROR! environmental variable SMURF_DATA not defined!']);
