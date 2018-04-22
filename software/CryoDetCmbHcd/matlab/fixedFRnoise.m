@@ -27,7 +27,7 @@ videoAvgM=20;
 %               'Imax',318307.4857), ...
 %    };
 
-dls={ ...
+%dls={ ...
         % dataset1
         %struct('fn','1519171138_Ch64.dat', ...
         %       'label','open loop, refPhaseDelay=0x5', ...
@@ -50,7 +50,7 @@ dls={ ...
 % %         struct('fn','1518107965_Ch256.dat', ...
 % %                'label','quadrature direction (analysisScale=0x0)', ...
 % %                'type','adc', ...
-% %                'swapFdF',false, ...
+% %             sImax   'swapFdF',false, ...
 % %                'Imax',1727758.3618), ...
 % %         struct('fn','1518107078_Ch256.dat', ...
 % %                'label','quadrature direction', ...
@@ -71,21 +71,41 @@ dls={ ...
          %      'Imax',5261193.0746, ...
          %      'medFilterN',3, ...
          %      'alpha',0.5) ...
-         struct('fn','1519212960_Ch416.dat', ...
-               'label','DSP inphase', ...
+         %struct('fn','1519260119_Ch416.dat', ...
+         %       'type','adc', ...
+         %       'swapFdF',false, ...
+         %       'medFilterN',3, ...
+         %       'alpha',0.5) ...
+         %struct('fn','1519220532_Ch416.dat', ...
+         %      'label','DSP quadrature', ...
+         %      'type','adc', ...
+         %      'swapFdF',false, ...
+         %      'medFilterN',3, ...
+         %      'alpha',0.5) ...
+%    };
+
+dls={ ...
+struct('fn','1519826131_Ch48.dat', ...
+               'label','', ...
                'type','adc', ...
-               'swapFdF',false, ...
-               'Imax',632740.385, ...
-               'medFilterN',3, ...
-               'alpha',0.5) ...
-         struct('fn','1519212895_Ch416.dat', ...
-               'label','DSP quadrature', ...
+               'swapFdF',true, ...
+               'medFilterN',5, ...
+               'alpha',0.5), ...
+struct('fn','1519826175_Ch48.dat', ...
+               'label','', ...
                'type','adc', ...
-               'swapFdF',false, ...
-               'Imax',632740.385, ...
-               'medFilterN',3, ...
-               'alpha',0.5) ...
-    };
+               'swapFdF',true, ...
+               'medFilterN',5, ...
+               'alpha',0.5), ...
+};
+
+%idf={'1519261697_Ch256.dat','1519261741_Ch256.dat'};
+%%idf={'1519688827_Ch64.dat','1519690164_Ch64.dat'};
+%%dls=repmat({struct('type','adc','swapFdF',false,'medFilterN',3,'alpha',0.5)}, 1, length(idf))
+%%for ii=1:length(idf)
+%%    x=idf(ii);
+%%    dls{ii}=setfield(dls{ii},'fn',x{1});
+%%end
 
 dlb={ %struct('fn','1518178932_lb_dBcHz.mat', ...
       %       'label','dan loopback thru fridge', ... 
@@ -98,15 +118,17 @@ dlb={ %struct('fn','1518178932_lb_dBcHz.mat', ...
              };
 
 %plotTitle='SWH 5085.5649MHz  thru fridge +1.5MHz off resonance';
-fres=5039.8148;
+%fres=5039.8147;
 %plot_details='on resonance';
-plot_details='+1.5MHz off resonance'; fres=fres+1.5;
-plotTitle=['SWH ',sprintf('%0.3f',fres),'MHz ',plot_details];
+%plot_details='+1.5MHz off resonance'; fres=fres+1.5;
+plotTitle='SWH FP Run 24 umux16c post-mumetal';
 %plotTitle='CY 5.396 GHz no TES, fixed input/variable output attenuation';
 
 % auto-append date
 now=datetime('now')
 plotTitle=[datestr(now,'yyyy/mm/dd') ' ' plotTitle];
+
+plotTitle='2018/2/28 SWH FP Run 24 umux16c pre-mumetal';
 
 clear fs dfs asds fpws;
 fs=[]; dfs=[]; asds=[]; fpws=[];
@@ -133,9 +155,13 @@ for c=1:length(dls)
     
     [dfpath,dfname,dfext] = fileparts(dfn);
     dsnum=dfname(7:10);
-    
-    dfleg=getfield(dls{c},'label');
-    disp([dfn ' : ' dfleg]);
+
+    if(isfield(dls{c},'label'))
+        dfleg=getfield(dls{c},'label');
+        disp([dfn ' : ' dfleg]);
+    else
+        dfleg='';
+    end
     [filepath,name,ext] = fileparts(dfn)
     
     clear f;
@@ -161,14 +187,28 @@ for c=1:length(dls)
         f=df;
     end
     
+    Imax=1;
     if(strcmp(fordf,'adc'))
         % decodeSingleChannel assumes data is frequency,
         % so if you're trying to read ADC data directly
         % need to undo the conversion it does
         f=(2^23/19.2)*f;
         df=(2^23/19.2)*f;
+
+        % load Imax if it exists
+        iqcfgfile=fullfile(dfpath,[dfname,'_iq.mat']);
+        disp(iqcfgfile);
+        if exist(iqcfgfile, 'file')
+            load(iqcfgfile);
+            disp(['Imax=',num2str(Imax)]);
+            disp(['F=',num2str(F)]);
+            disp(['label=',num2str(label)]);
+
+            dfleg=[sprintf('f=%0.3fMHz, ',F),' ',label,' ',dfleg]
+            disp(['dfleg=',dfleg]);
+        end
     end
-    
+
     % truncate by stripping off last 10 samples; for some reason a lot of
     % the time the last sample or so is a glitch for either f or df
     f=f(1:end-10);
@@ -241,12 +281,6 @@ for c=1:length(dls)
         end
         %% done plotting power spectra on same axis from Dan's loopback script
     end
-
-    % 
-    Imax=1;
-    if isfield(dls{c},'Imax')
-        Imax=getfield(dls{c},'Imax');
-    end
     
     % legend for upcoming dls plot
     LegendString{legendCounter} = [dfleg ' (' dsnum ')'];
@@ -269,8 +303,7 @@ for c=1:length(dls)
     
     if strcmp(fordf,'adc')
         asd=20.*log10(asd/Imax); % x1e6 to convert from MHz to Hz
-        curr_plt=semilogx(fpw,asd);
-        
+        curr_plt=semilogx(fpw,asd);  
     else %frequency data in MHz
         asd=asd*1.e6; % x1e6 to convert from MHz to Hz
         curr_plt=loglog(fpw,asd);
@@ -300,7 +333,8 @@ for c=1:length(dls)
         grid on;
         grid minor;
         
-        legend(LegendString);
+        lgd=legend(LegendString);
+        lgd.FontSize=6;
         title(plotTitle,'FontSize',8);
     end
     
@@ -352,14 +386,52 @@ for c=1:length(dls)
         grid on;
         grid minor;
         
-        legend(LegendString);
+        lgd=legend(LegendString);
+        lgd.FontSize=6;
+        
         title(plotTitle,'FontSize',8);
     end
 end
 
-for c=1:length(dls)
-    f=fs(c,:);
-    dfleg=getfield(dls{c},'label');
-    disp(['-> ' dfleg ' : ']);
-    disp(['std(f)=' num2str(std(f)*1.e6) 'Hz']);
+disp('----------------------------------------------------------------');
+for centerF=[1e3,4e3,30e3]
+    dF=100;
+    lowerF=centerF-dF;
+    upperF=centerF+dF;
+    for c=1:length(dls)
+        dflabel='';
+        if(isfield(dls{c},'label'))
+            dflabel=getfield(dls{c},'label');
+        end
+        fordf=getfield(dls{c},'type');
+        if strcmp(fordf,'adc')
+            asd=asds(c,:);
+            fpw=fpws(c,:);
+            asdinterval=NaN(length(asd),1);
+            for idf=1:length(asd)
+                f=fpw(idf);
+                a=asd(idf);
+                if f>=lowerF && f<upperF
+                    %disp(a);
+                    asdinterval(idf)=a;
+                end  
+                if f>upperF
+                    break;
+                end
+            end
+            ls=LegendString(c);
+            %disp(length(asdinterval(~isnan(asdinterval))));
+            medasdintval=median(asdinterval(~isnan(asdinterval)));
+            disp(sprintf('%s [%0.2e Hz, %0.2e Hz] : %0.2f',ls{1},lowerF,upperF,medasdintval));
+        end
+    end
+    disp('----------------------------------------------------------------');
 end
+
+
+%for c=1:length(dls)
+%    f=fs(c,:);
+%    dfleg=getfield(dls{c},'label');
+%    disp(['-> ' dfleg ' : ']);
+%    disp(['std(f)=' num2str(std(f)*1.e6) 'Hz']);
+%end
