@@ -1,4 +1,4 @@
-function [f,resp]=fullBandAmplSweep(bands,Nread,dwell,freqs)
+function [f,resp]=fullBandAmplSweep(bands,Adrive,Nread,dwell,freqs)
     %function amplSweep2
     %sweeps the full band
     f=[];
@@ -8,14 +8,18 @@ function [f,resp]=fullBandAmplSweep(bands,Nread,dwell,freqs)
     end
     
     if nargin < 2
+        Adrive = 10;
+    end
+    
+    if nargin < 3
         Nread = 2;
     end
 
-    if nargin < 3
+    if nargin < 4
         dwell  =0.02;
     end
 
-    if nargin < 4
+    if nargin < 5
         freqs = -10:0.1:10; %frequencies in MHz
     end
 
@@ -29,7 +33,9 @@ function [f,resp]=fullBandAmplSweep(bands,Nread,dwell,freqs)
     %for band=0:31
     for band=bands
         disp(['band ' num2str(band)])
-        [resp(band+1,:), f(band+1,:)] = amplSweep(band, freqs, Nread, dwell);
+        %[resp(band+1,:), f(band+1,:)] = amplSweep(band, freqs, Nread, dwell);
+        %[resp(band+1,:), f(band+1,:)] = fastEtaScan(band, freqs, Nread, dwell, Adrive);
+        [resp(band+1,:), f(band+1,:)] = fastEtaScan(band, freqs, Nread, dwell, Adrive);
         f(band+1,:) = f(band+1,:) + band_centers(band+1);
     end
 end
