@@ -16,5 +16,8 @@ rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
 %end
 
 % New way, turns everyone off efficiently
-chanPVprefix = [rootPath, 'CryoChannels:'];
-lcaPut( [chanPVprefix, 'setAmplitudeScales'], 0);
+pvRoot = [rootPath, 'CryoChannels:'];
+lcaPut( [pvRoot, 'setAmplitudeScales'], 0);
+lcaPut( [pvRoot, 'feedbackEnableArray'], zeros(1,512) );
+
+fluxRampOnOff(0)
