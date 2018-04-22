@@ -69,7 +69,7 @@ function takeDebugData( rootPath, fileName, varargin )
 
     %triggerDM
     disp(['Taking data...'])
-    lcaPut([root, ':AMCc:FpgaTopLevel:AppTop:AppCore:CmdDacSigTrigArm'],1);
+    triggerDM
     
 
     % how long to pause?
