@@ -35,7 +35,7 @@ lcaPut( [rootPath, 'toneScale'], 2 )  % half of full scale amplitude in a single
 lcaPut( [rootPath, 'feedbackEnable'], 0 ) %Disable FB
 
 % choose drive amplitude
-Adrive = 10; % -15 dB
+Adrive = 5; % -15 dB
 %Adrive = 13; % -6 dB
 %Adrive = 15; %  full scale
 
@@ -69,8 +69,8 @@ for j=1:length(freqs)
         f((j-1)*Nread + nr) = freqs(j); 
     end
 end
-    Adrive = 0; %turn down to very low amplitude
-    configCryoChannel( rootPath, subchan, freqs(j), Adrive, 0, 0, 0 )
+Adrive = 0; %turn down to very low amplitude
+configCryoChannel( rootPath, subchan, freqs(j), Adrive, 0, 0, 0 )
 
 % if we should want to check dF:
 % [loopFilterOutput, frequencyError] = readbackCryoChannel( rootPath, channelNum )
