@@ -1,7 +1,11 @@
 function fluxRampOnOff(frEnable)
 %% Simple function for turning the flux ramp on or off.  Default is to switch
 
-rtmSpiRootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:C_RtmSpiSr:';
+root=getSMuRFenv('SMURF_EPICS_ROOT');
+rootPath=strcat(root,':AMCc:FpgaTopLevel:AppTop:AppCore:'); 
+rtmRootPath = strcat(rootPath,'RtmCryoDet:');
+rtmSpiRootPath = strcat(rtmRootPath,'RtmSpiSr:');
+
 % read current state
 %currentFRState = lcaGet( [rtmSpiRootPath, 'Cfg_Reg_Ena Bit'] );
 
@@ -14,7 +18,7 @@ rtmSpiRootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:C_RtmS
 %    return
 %end
 
-lcaPut( [rtmSpiRootPath, 'Cfg_Reg_Ena Bit'],  num2str(frEnable)); %switch FR on/off
+lcaPut( [rtmSpiRootPath, 'CfgRegEnaBit'],  num2str(frEnable)); %switch FR on/off
     
 % wait 0.11 secound before handing back 
 pause(0.11);
