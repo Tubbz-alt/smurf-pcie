@@ -1,6 +1,29 @@
 % script to find the eta parameters and setup 32 frequencies
-function chan = setupNotches_umux16_singletone(rootPath,Adrive,resonators)
+function chan = setupNotches_umux16_singletone(rootPath,Adrive,bandCenter,resonators)
 
+    %% CMB resonators
+    % amount to swing to the left and right of the resonator by, total
+    % (one-sided)
+%     FsweepFHalf=1;
+%     % frequency step size in resonator sweep
+%     FsweepDf=0.01;
+%     delF=0.05;
+
+    %% X-ray resonators
+    %FsweepFHalf=0.9;
+    %FsweepDf=0.03;
+    %delF=0.180; 
+       
+    % Nb CMB MKIDs
+    %FsweepFHalf=0.75;
+    %FsweepDf=0.005;
+    %delF=0.05; 
+    Adrive=10;
+    FsweepFHalf=0.3;
+    FsweepDf=0.01;
+    delF=0.02; 
+
+    
     if nargin < 1
         rootPath='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'; 
     end
@@ -10,6 +33,10 @@ function chan = setupNotches_umux16_singletone(rootPath,Adrive,resonators)
     end
 
     if nargin < 3
+        bandCenter=5250;
+    end
+    
+    if nargin < 4
         % no TES
         resonators=[5395.7396];
 
@@ -34,15 +61,15 @@ function chan = setupNotches_umux16_singletone(rootPath,Adrive,resonators)
     %end
     %
 
-    band0 = 5.25e3;
+    band0 = bandCenter;
     bandchans = zeros(32,1);
     
     for ii =1:length(resonators)
         res = resonators(ii);
         display(' ')
         display('_________________________________________________')
-        display(['Calibrate line at RF = ' num2str(res) ' MHz  IF = ' num2str(res - 5250 + 750) ' Mhz'])
-        [band, Foff] = f2band(res)    ;
+        display(['Calibrate line at RF = ' num2str(res) ' MHz  IF = ' num2str(res - bandCenter + 750) ' Mhz'])
+        [band, Foff] = f2band(res,bandCenter)    ;
         disp(['band=',num2str(band)]);
         Foff
     
@@ -52,12 +79,12 @@ function chan = setupNotches_umux16_singletone(rootPath,Adrive,resonators)
         offset(ii) = Foff;
 
         try
-            figure(ii)
-            [eta, F0, latency, resp, f] = etaEstimator(band, [(offset(ii) - .3):0.01:(offset(ii) + 0.3)],Adrive);
+            figure(ii)  
+            [eta, F0, latency, resp, f] = etaEstimator(band, [(offset(ii) - FsweepFHalf):FsweepDf:(offset(ii) + FsweepFHalf)],Adrive,delF);
             hold on; subplot(2,2,4);
             ax = axis; xt = ax(1) + 0.1*(ax(2)-ax(1)); 
             yt = ax(4) - 0.1*(ax(4)-ax(3));
-            text(xt, yt, ['Line @ ', num2str(res), ' MHz    (' num2str(res - 5250) ' wrt band center'])
+            text(xt, yt, ['Line @ ', num2str(res), ' MHz    (' num2str(res - bandCenter) ' wrt band center'])
             hold off;
             etaPhaseDeg(ii) = angle(eta)*180/pi;
             etaScaled(ii) =abs(eta)/19.2;
