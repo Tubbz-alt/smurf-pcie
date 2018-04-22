@@ -1,9 +1,10 @@
 allOff
 
-[band,Foff]=f2band(5308.879)
+bandCenter=4250;
+[band,Foff]=f2band(4162.2,bandCenter)
 chan = 16*band;
 
 etaPhaseDeg = 0;
 etaScaled = 0;
 
-configCryoChannel(rootPath, chan, offset, 12, 1, etaPhaseDeg, etaScaled);
+configCryoChannel(rootPath, chan, Foff, 12, 1, etaPhaseDeg, etaScaled);
