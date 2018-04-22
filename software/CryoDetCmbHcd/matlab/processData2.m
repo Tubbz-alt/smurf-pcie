@@ -1,4 +1,4 @@
-% Process the data from pyrogue strema interfaces
+% Process the data from pyrogue stream interfaces
 % data is a multidimensiona matrix with the process data
 
 function [data, header] = processData2(file, type)
@@ -41,10 +41,10 @@ function [data, header] = processData2(file, type)
     
 
     if header(2,2) == 0
-       % do nothing 
-    else
         header = fliplr(header);
         data   = fliplr(data);
+    else
+        % do nothing 
     end
 
 end
