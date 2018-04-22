@@ -1,7 +1,7 @@
 disp('!!! Remember, must read the correct ADC.  Should match the band # in setup.m');
 
 % 2.4e6 is downconverted channel rate
-Band = 3;
+Band = 1;
 Fadc = 614.4e6;
 rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
 
@@ -9,7 +9,7 @@ rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
 dacNumber = Band;
 dacData = readDacData( rootPath, dacNumber );
 figure
-w = blackman(length(adcData));
+w = blackman(length(dacData));
 pwelch(dacData, w, [], [], Fadc, 'centered')
 title('DAC data PSD')
 
