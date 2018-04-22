@@ -1,81 +1,149 @@
-% script to find the eta parameters and setup 32 frequencies
-
-resonatorsOld = [4.9980, 5.0003, 5.0055, 5.0106, 5.0165, 5.0219, 5.0283,...
-    5.0352, 5.0410, 5.0476, 5.0533, 5.0592, 5.0660, 5.0726,...
-    5.0794, 5.0863, 5.0924, 5.1083, 5.1126, 5.1178, 5.1228,...
-    5.1287, 5.1343, 5.1415, 5.1476, 5.1538, 5.1603, 5.1656,...
-    5.1721, 5.1783, 5.1854, 5.1923, 5.1995, 5.2493, 5.2511,... 
-    5.2546, 5.2594, 5.2653, 5.2708, 5.2780, 5.2847, 5.2906,...
-    5.2962, 5.3007, 5.3061, 5.3119, 5.3180, 5.3265, 5.3319,...
-    5.3386, 5.3592, 5.3625, 5.3664, 5.3714, 5.3774, 5.3836,...
-    5.3914, 5112,  5.4030, 5.4085, 5.4127, 5.4184, 5.4246,...
-    5.4284, 5.4383, 5.4461]*1e3;
-
-%working from testAmplSweep 4Dec2017
-resonators = 5250 + [-1.3, 0.5, 4.1, 8.5, 13.9, 19.1, 33.3, 39.7, 45.3, 49.6, 54.6, 60.2,...
-    67.4, 76, 81.2, 112, 116, 121, 127, 133, 140.3, 146.5, 152.1, ...
-    157.5, 161.6, 167.3, 174, 177.5,  187.6, 195.3]
-%, -138.3, -128, -133.2, -138.3, -142.5  ];
-% adapting frequencies to 15Dec2017
-
-resonators = 5250 + [ -1.3, 0.5, 4.1, 8.5, 13.9, 19.1, 33.25, 39.7, 45.3, 49.6, 54.6, 60.2,...  
-    66.2, 74.7, 80.7, 87.75, 108.6, 111.8, 115.6, 120.2, 126.5, 131.96, 139.6, 145.8,  ...
-        152.1, 157.5, 161.5, 166.6, 172.8, 176.2,  186.5, 195]
-
-%resonators = 5250 + [131.96, 139.6, 145.8, ...
- %   157.5, 161.5, 166.6, 172.8, 176.,  187.3, 195]
-
-%resonators = 5250 + [-1.3, 0.5, 4.1, 14.8, 19.9, 34, 40, 45.6, 55.4, 61.3];  %bands 0, 16, 2
-%resonators = 5250 + [152.1];  
-
-Off
-close all;
-
-band0 = 5.25e3;
-bandchans = zeros(32,1);
-
-for ii =1:length(resonators)
-    res = resonators(ii);
-    display(' ')
-    display('_________________________________________________')
-    display(['Calibrate line at RF = ' num2str(res) ' MHz  IF = ' num2str(res - 5250 + 750) ' Mhz'])
-    [band, Foff] = f2band(res)    ;
-    band
-    Foff
+function ctime = setupNotches_umux16_singletone(rootPath,Adrive,doPlots)
+    tic
     
-    % track the number of channels in the band
-    bandchans(band+1) =bandchans(band+1)+1;
-    chan(ii) = 16*band + bandchans(band+1) -1;
-    offset(ii) = Foff;
+    if nargin < 1
+        rootPath='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'; 
+    end
 
-    try
-        %figure(ii)
-        [eta, F0, latency, resp, f] = etaEstimator(band, [(offset(ii) - .3):0.01:(offset(ii) + 0.3)]);
-        hold on; subplot(2,2,4);
-        ax = axis; xt = ax(1) + 0.1*(ax(2)-ax(1)); 
-        yt = ax(4) - 0.1*(ax(4)-ax(3));
-        text(xt, yt, ['Line @ ', num2str(res), ' MHz    (' num2str(res - 5250) ' wrt band center'])
-        
-        yt = ax(3) + 0.1*(ax(4)-ax(3));
-        Fc = F0 + bandCenter(band);
-        text(xt, yt, ['Min @ ', num2str(Fc), ' MHz    (' num2str(Fc-5250) ' wrt band center'])
-        hold off
-        
-        etaPhaseDeg(ii) = angle(eta)*180/pi;
-        etaScaled(ii) =abs(eta)/19.2;
-    catch
-        display(['Failed to calibrate line number ' num2str(ii)])
-        etaPhaseDeg(ii) =0;
-        etaScaled(ii)=0;
+    if nargin < 2
+        Adrive=10; % roughly -33dBm at connector on SMuRF card output
     end
     
-end
-
-%save('params.mat', stufffffffff)
-
-for ii=1:length(resonators)
-    configCryoChannel(rootPath, chan(ii), offset(ii), 12, 1, etaPhaseDeg(ii), etaScaled(ii));
-end
+    if nargin < 3
+        doPlots=false;
+    end
     
+    clearvars offset chan etaPhaseDeg etaScaled
+
+    ctime=ctimeForFile;
+
+    % create directory for results
+    datadir=dataDirFromCtime(ctime);
+
+    resultsDir=fullfile(datadir,num2str(ctime));
+
+    % if resuls directory doesn't exist yet, make it
+    if not(exist(resultsDir))
+        disp(['-> creating ' resultsDir]);
+        mkdir(resultsDir);
+    end
+    % done creating directory for results
+
+    %load the most recent resonator scan
+    M=dlmread('/data/cpu-b000-hp01/cryo_data/data2/current_res');
+    resonators_all=M(:,3,:)';
+
+    %resonators=resonators_all(resonators_all>5.2e3)
+    resonators=resonators_all;
     
+    %Voltage on the FPGA associated to the tone (if it`s too high it can
+    %saturate for some tones). Each unit is +3dB.
+    FsweepFHalf=0.3;
+    FsweepDf=0.002;
+    delF=0.010; 
+
+    Off
+    if doPlots
+        close all;
+    end
+    
+    bandCenterMHz = lcaGet([rootPath,'bandCenterMHz']);
+    numberSubBands = lcaGet([rootPath,'numberSubBands']);
+    
+    bandchans = zeros(numberSubBands,1);
+
+    clear etaOut etaCfg;
+    etaOut={};
+    etaCfg={};
+
+    etaCfg.('ctime')=ctime;
+    etaCfg.('Adrive')=Adrive;
+    etaCfg.('FsweepFHalf')=FsweepFHalf;
+    etaCfg.('FsweepDf')=FsweepDf;
+    etaCfg.('delF')=delF;
+    etaCfg.('bandCenterMHz')=bandCenterMHz;
+
+    for ii =1:length(resonators)
+        res = resonators(ii);
+        display(' ')
+        display('_________________________________________________')
+        display(['Calibrate line at RF = ' num2str(res) ' MHz  IF = ' num2str(res - bandCenterMHz + 750) ' Mhz'])
+        [band, Foff] = f2band(res,bandCenterMHz);
+        band
+        Foff
+    
+        % track the number of channels in the band
+        % right now, firmware limited to only being able
+        % to track 8 channels per band; set that as a hard
+        % limit
+        maxNumChannelsPerSubband=8;
+        if bandchans(band+1)==maxNumChannelsPerSubband
+            disp(sprintf('!! Exceeded maxNumChannelsPerSubband=%d in band %d, have to skip this resonator at %0.3f GHz',maxNumChannelsPerSubband,band,res));
+            continue;
+        end
+        bandchans(band+1) = bandchans(band+1)+1;
+        chan(ii) = 16*band + bandchans(band+1) -1;
+        offset(ii) = Foff;
+
+        try     
+            [eta, F0, latency, resp, f] = etaEstimator(band, [(offset(ii) - FsweepFHalf):FsweepDf:(offset(ii) + FsweepFHalf)],Adrive,delF,doPlots);
+          
+            if doPlots
+                hold on; subplot(2,2,4);
+                ax = axis; xt = ax(1) + 0.1*(ax(2)-ax(1)); 
+                yt = ax(4) - 0.1*(ax(4)-ax(3));
+                text(xt, yt, ['Line @ ', num2str(res), ' MHz    (' num2str(res - bandCenterMHz) ' wrt band center'])
+                
+                yt = ax(3) + 0.1*(ax(4)-ax(3));
+                Fc = F0 + bandCenter(band);
+                text(xt, yt, ['Min @ ', num2str(Fc), ' MHz    (' num2str(Fc-bandCenterMHz) ' wrt band center'])
+            
+                yt = ax(2) - 0.05*(ax(2)-ax(1));
+                text(xt, yt, sprintf('ch%d',chan(ii)));
+                hold off
+            end
+                
+            etaPhaseDeg(ii) = angle(eta)*180/pi;
+            etaScaled(ii) =abs(eta)/19.2;
+        
+            % will store result to disk
+            etaOut(chan(ii)+1).('eta')=eta;
+            etaOut(chan(ii)+1).('F0')=F0;
+            etaOut(chan(ii)+1).('latency')=latency;
+            etaOut(chan(ii)+1).('resp')=resp;
+            etaOut(chan(ii)+1).('f')=f;
+            etaOut(chan(ii)+1).('band')=band;
+            etaOut(chan(ii)+1).('Foff')=Foff;
+            etaOut(chan(ii)+1).('res')=res;
+            etaOut(chan(ii)+1).('etaPhaseDeg')=etaPhaseDeg(ii);
+            etaOut(chan(ii)+1).('etaScaled')=etaScaled(ii);
+            etaOut(chan(ii)+1).('chan')=chan(ii);
+        
+            if doPlots
+                % save plot for later review
+                figureFileName=fullfile(resultsDir,[num2str(ctime),'_etaEst_b',num2str(band),'ch',num2str(chan(ii)),'.png']);
+                saveas(gcf,figureFileName);
+            end
+        catch
+            display(['Failed to calibrate line number ' num2str(ii)])
+            etaPhaseDeg(ii) =0;
+            etaScaled(ii)=0;
+        end
+        if doPlots
+            close all
+        end
+    end
+
+    % write out full eta info, including data
+    etaOutFileName=fullfile(resultsDir,[num2str(ctime),'_etaOut.mat']);
+    save(etaOutFileName,'etaOut','etaCfg');
+
+    % update convenient link to most recent etaScan parameters
+    system('rm /data/cpu-b000-hp01/cryo_data/data2/current_eta');
+    system(sprintf('ln -s %s /data/cpu-b000-hp01/cryo_data/data2/current_eta',etaOutFileName));
+
+    reLock;
+
+    toc;
+
 
