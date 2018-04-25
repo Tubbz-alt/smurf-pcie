@@ -1,20 +1,31 @@
-folder = '/home/common/data/cpu-b000-hp01/cryo_data/data2/';
+function [phase_all, psd_pow, pwelch_f, time]=demod_gen2(dfn)
+    % for automated dataset finding
+    addpath('./glob/');
 
-file = '20180424/1524584170.dat'
+    % path to SMuRF data.  Should be pulling from environment, not hard
+    % coding...
+    path2datedirs='/home/common/data/cpu-b000-hp01/cryo_data/data2/';
 
-fileName = fullfile(folder, file);
+    dfn_cands=glob(fullfile(path2datedirs,'/*/',dfn));
+    % don't take the one that's in the soft-linked current_data directory
+    dfnIdxC=strfind(dfn_cands,'/current_data/');
+    dfnIdx=find(cellfun('isempty',dfnIdxC));
+    dfn=dfn_cands(dfnIdx);
+    fileName=dfn{1,1}; % not sure why this is necessary
+    disp(['-> found ' fileName]);
+    
+    numPhi0 = 'rtm';
+    
+    % this is the phi0Rate, not the flux ramp rate
+    phi0Rate = 9060;
 
-numPhi0 = 'rtm';
+    decimation = 1;
+    
+    [dfpath,dfname,dfext] = fileparts(fileName);
+    outputName = sprintf('./output/%s_output.mat',dfname);
+    %save(strcat(outputName, '.mat'))
 
-% this is the phi0Rate, not the flux ramp rate
-phi0Rate = 9060;
+    [phase_all, psd_pow, pwelch_f, time] = process_demod(fileName, numPhi0, phi0Rate, decimation, outputName);
 
-decimation = 1;
-
-
-[phase_all, psd_pow, pwelch_f, time] = process_demod(fileName, numPhi0, phi0Rate, decimation, outputName);
-
-%outputName = './output/1524583589_output';
-%save(strcat(folder, outputName, '.mat'))
-
-%/home/common/data/cpu-b000-hp01/cryo_data/data2/20180328/1522237354_Ch0.dat
+    %save(strcat(folder, outputName, '.mat'))
+end
