@@ -100,5 +100,6 @@ function setup( band )
 %     lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable1'], num2str(1));
 %     lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable2'], num2str(1));
 %     lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable3'], num2str(1));
+     lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:MicrowaveMuxCore[0]:LMK:PwrDwnSysRef'], 1);
     readFpgaStatus( root )
 end
