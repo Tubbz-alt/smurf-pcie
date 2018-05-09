@@ -54,10 +54,10 @@ try
     %plot(exsyncf(1:2000));
     
 catch
-    [freq, ~, sync] = decodeSingleChannel(fileName, 1);
-    sync_f = sync(:,1);
+    [freq, ~, sync] = decodeSingleChannel(fileName);
     freq = freq';
     
+    sync_f = sync;
     %freq = downsample(freq);
 end
 
@@ -68,7 +68,7 @@ end
 % for plot titles
 [filePath,fileSuffix,fileExt] = fileparts(fileName) 
 [~,fileDir,~] = fileparts(filePath);
-plotTitle=sprintf('%s/%s.%s',fileDir,fileSuffix,fileExt);
+plotTitle=sprintf('%s/%s%s',fileDir,fileSuffix,fileExt);
 
 %set up time vector
 N = size(freq,1);
@@ -179,8 +179,8 @@ for i=1:n_channels
     figure(3)
     plot(phase_pow_filtered(i,:)); hold on;
     title(plotTitle,'Interpreter','none')
-    xlabel('Phi (rad)');
-    ylabel('Flux ramp cycle');
+    ylabel('Phi (rad)');
+    xlabel('Flux ramp cycle');
     
     
     nphases = size(phase_all,2);
@@ -217,12 +217,12 @@ for i=1:n_channels
     %legend('pwelch','no windowing','mean noise from this pwelch interval');
 end
 
-%fsubset_min=10;
-%fsubset_max=50;
-%freqs_subset_idxs = find((pwelch_f>fsubset_min)&(pwelch_f<fsubset_max));
-%freqs_subset = pwelch_f(freqs_subset_idxs);
-%psd_subset = sqrt((psd_pow(:,freqs_subset_idxs)))/360*9e-6*1e12;
-%psd_mean_in_subset = nanmean(psd_subset);
+fsubset_min=10;
+fsubset_max=50;
+freqs_subset_idxs = find((pwelch_f>fsubset_min)&(pwelch_f<fsubset_max));
+freqs_subset = pwelch_f(freqs_subset_idxs);
+psd_subset = sqrt((psd_pow(:,freqs_subset_idxs)))/360*9e-6*1e12;
+psd_mean_in_subset = nanmean(psd_subset);
 
 %plot(freqs_subset,psd_subset,'LineWidth',2,'Color','green');
 %xl=xlim();
@@ -241,7 +241,7 @@ end
 %minnoise_subset = min(psd_subset)
 %minnoise_shawn = min(psd_1Hz_shawn)
 %minnoise_shawn_subset = min(psd_shawn_subset)
-
-
-%save(outputName, 'minnoise', 'minnoise_shawn', 'phase_all', 'psd_pow', 'pwelch_f', 'numPhi', 'freqs', 'freqs_shawn', 'fluxRampRate', 'fileName')
+    
+disp(sprintf('-> saving results in %s',outputName));
+save(outputName, 'psd_freq', 'psd_phase_shawn', 'fluxRampRate', 'fileName', 'cfg','numPhi','phi0Rate','decimation','fsamp')
 end
