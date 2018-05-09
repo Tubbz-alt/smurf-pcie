@@ -40,7 +40,7 @@ function [data, header] = processData2(file, type)
     end
     
 
-    if header(2,2) == 0
+    if header(2,2) == 2
         header = fliplr(header);
         data   = fliplr(data);
     else
