@@ -33,4 +33,8 @@ function filename=takeData(Npts,rootPath)
     writeRunFile(rootPath,configfile);
     
     % take data!
+    disp('-> Jesd statusValidCnts before taking data');
+    dumpJesdStatusValidCnts();
     takeDebugData(rootPath,filename,Npts);
+    disp('-> Jesd statusValidCnts after taking data');
+    dumpJesdStatusValidCnts();
