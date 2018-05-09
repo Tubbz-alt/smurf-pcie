@@ -46,7 +46,9 @@ function [phase_all, psd_pow, pwelch_f, time]=demod_gen2(dfn,numPhi0)
         % Mitch says; "For single channel Opt2 readout rate is 2.4MHz - comes from oversample 
         %filter bank (2 parallel filter banks, each handling 256 channels)
         %Then that one is 614.4/256
-        error('!!! Aborted : fsamp not computed correctly for single channel data - needs to be properly implemented.')
+        
+        fsamp = 1.e6 * cfg.digitizerFrequencyMHz / 256; % this should be 2.4e6
+        %error('!!! Aborted : fsamp not computed correctly for single channel data - needs to be properly implemented.')
     end
 
     % place to save results
