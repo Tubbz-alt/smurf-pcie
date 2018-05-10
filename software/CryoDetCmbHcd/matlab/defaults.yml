@@ -407,9 +407,9 @@ AMCc:
               LINK_LAYER_TESTMODE: 0x0
               40X_MODE: 0x7
               PLL_MODE: 0x2
-              SEL_EMP_LANE0: 0x3
+              SEL_EMP_LANE0: 0x5
               SEL_EMP_LANE1: 0x1F # Unused lane 
-              SEL_EMP_LANE2: 0x3
+              SEL_EMP_LANE2: 0x5
               SEL_EMP_LANE3: 0x1F # Unused lane
               TX_LINK_DIS: 0x0
               FRAME_ALIGN: 0x0
