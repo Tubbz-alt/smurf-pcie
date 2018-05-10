@@ -25,6 +25,7 @@ function setup( band )
     lcaPut([root,'refPhaseDelay'], num2str(5));
     lcaPut([root,'refPhaseDelayFine'], num2str(47));
     lcaPut([root,'toneScale'], num2str(2));
+    lcaPut([root,'feedbackEnable'], num2str(1));
     lcaPut([root,'feedbackGain'], num2str(256));
     lcaPut([root,'feedbackLimit'], num2str(256));
     lcaPut([root,'feedbackPolarity'], num2str(1));
