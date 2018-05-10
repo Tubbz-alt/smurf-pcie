@@ -4,7 +4,7 @@ function [dF, f] = dFvsF(band, freqs, Nread, dwell)
 
 %SSmith 28 Nov 2017
 
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 
 
 if nargin <3 

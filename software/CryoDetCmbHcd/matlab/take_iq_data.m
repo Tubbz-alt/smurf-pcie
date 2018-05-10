@@ -26,14 +26,14 @@ time=tsamp*(0:1:data_length-1);
 % %added for sidebands
 % df=100e3; %delta for the two sidebands;
 setBufferSize(data_length)
-lcaPut('mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:CmdDacSigTrigArm',1)
+lcaPut([getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:CmdDacSigTrigArm'],1)
 %triggerDM
 pause(1)
 
 stm_size = lcaGet(DMBufferSizePV);
 
-Qdata=lcaGet('mitch_epics:AMCc:Stream0', stm_size);
-Idata=lcaGet('mitch_epics:AMCc:Stream1', stm_size);
+Qdata=lcaGet([getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:Stream0'], stm_size);
+Idata=lcaGet([getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:Stream1'], stm_size);
 figure
 pwelch(Idata + j*Qdata ,[],[],[],614.4e6,'centered')
 

@@ -171,7 +171,7 @@ frCfg.C_RtmSpiSr={};
 %if doRead
 %    %% read current state
 %    % RtmCryoDet
-%    rtmRootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:';
+%    rtmRootPath = [root,':AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:'];
 %    configvars={'LowCycle','HighCycle','KRelay','RampMaxCnt','SelectRamp','EnableRamp','RampStartMode','PulseWidth','DebounceWidth'};
 %    for cfgvar=configvars
 %        value=lcaGet([rtmRootPath, cfgvar{1}]);
@@ -179,7 +179,7 @@ frCfg.C_RtmSpiSr={};
 %    end
 %    
 %    %% C_RtmSpiSr
-%    rtmSpiRootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:C_RtmSpiSr:';
+%    rtmSpiRootPath = [root,':AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:C_RtmSpiSr:'];
 %    configvars={'AD5790_NOP_Reg','AD5790_Data_Reg','AD5790_Ctrl_Reg','AD5790_ClrCode_Reg','Config_Reg', ...
 %                'Cfg_Reg_Ena Bit','Ramp Slope','Mode Control'}; %,'Fast Step Size','Fast Rst Value'}; %% not reading right now 
 %    for cfgvar=configvars

@@ -75,9 +75,9 @@ function writeRunFile(rootPath,runFileName)
     for cfgvar=configvars
         % for some reason, this one has a different type than the others.
         if strcmp('FpgaVersion',cfgvar{1})
-            value=lcaGet(['mitch_epics:AMCc:FpgaTopLevel:AmcCarrierCore:AxiVersion:' cfgvar{1}]);
+            value=lcaGet([getSMuRFenv('SMURF_EPICS_ROOT') ':AMCc:FpgaTopLevel:AmcCarrierCore:AxiVersion:' cfgvar{1}]);
         else
-            value=char(lcaGet(['mitch_epics:AMCc:FpgaTopLevel:AmcCarrierCore:AxiVersion:' cfgvar{1}]));
+            value=char(lcaGet([getSMuRFenv('SMURF_EPICS_ROOT') ':AMCc:FpgaTopLevel:AmcCarrierCore:AxiVersion:' cfgvar{1}]));
         end
         
         % see setEnv.m for what this means

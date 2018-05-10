@@ -1,7 +1,7 @@
 function [resp, band] = amplQuery(bands, Nread, dwell)
 
 
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 
 if nargin < 1
     bands = 0:31;

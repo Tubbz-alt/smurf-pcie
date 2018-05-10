@@ -2,7 +2,7 @@ function ctime = setupNotches_umux16_singletone(rootPath,Adrive,doPlots)
     tic
     
     if nargin < 1
-        rootPath='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'; 
+        rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:']; 
     end
 
     if nargin < 2
@@ -10,7 +10,7 @@ function ctime = setupNotches_umux16_singletone(rootPath,Adrive,doPlots)
     end
     
     if nargin < 3
-        doPlots=false;
+        doPlots=true;
     end
     
     clearvars offset chan etaPhaseDeg etaScaled
@@ -67,6 +67,7 @@ function ctime = setupNotches_umux16_singletone(rootPath,Adrive,doPlots)
         res = resonators(ii);
         display(' ')
         display('_________________________________________________')
+
         display(['Calibrate line at RF = ' num2str(res) ' MHz  IF = ' num2str(res - bandCenterMHz + 750) ' Mhz'])
         [band, Foff] = f2band(res,bandCenterMHz);
         band

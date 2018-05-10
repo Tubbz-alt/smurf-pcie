@@ -12,7 +12,7 @@ function statusOK = loadConfig(fileName, ampl, FBen, exceptions)
 
 %if exceptions defined, skip these channel numbers in the reconfiguration
 
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 
 if nargin < 2
     ampl=12

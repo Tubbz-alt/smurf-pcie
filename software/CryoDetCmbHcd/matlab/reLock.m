@@ -1,5 +1,5 @@
 function reLock(chans)
-    rootPath='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
     [status,cmdout]=system('readlink /data/cpu-b000-hp01/cryo_data/data2/current_eta');
     etaIn=load(deblank(cmdout));
     

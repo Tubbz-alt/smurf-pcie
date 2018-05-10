@@ -4,7 +4,7 @@ function [band, Freq, ampl, FBen, etaPhase, etaMag] = getChannel(chan)
 %SSmith4 Dec 2017
 
 
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 
 
 chanPVprefix = [rootPath, 'CryoChannels:CryoChannel[', num2str(chan), ']:'];

@@ -2,8 +2,8 @@ function [resp, f] = fastEtaScan(band, freqs, Nread, dwell, Adrive)
 % Faster version of etaScan based on PVs Mitch added to pyrogue
 % Can't implement until we've worked some bugs out of new pyrogue...
 % SWH 21Mar2018
-
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:CryoChannels:';
+  
+  rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:CryoChannels:'];
 
 if nargin <3 
     Nread = 2; % default number of reads per frequnecy setting
@@ -67,7 +67,7 @@ Q = Q/2^23;
 resp = I + 1i*Q;    %form complex response
 
 Adrive = 0; % turn channel OFF
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 configCryoChannel( rootPath, subchan, freqs(ceil(end/2)), Adrive, 0, 0, 0 ) ;
 
 end

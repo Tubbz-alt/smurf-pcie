@@ -10,7 +10,7 @@ if nargin <2
     dwell = 0.1;
 end
 
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 chanPVprefix = [rootPath, 'CryoChannels:CryoChannel[', num2str(channel), ']:']
 
 F = [];

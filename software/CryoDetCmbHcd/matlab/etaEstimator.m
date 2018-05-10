@@ -114,7 +114,7 @@ function [resp, f] = etaScan(band, freqs, Nread, dwell, Adrive)
 %   +9.6 MHz in steps of 100kHz
 % SS 20Nov2017
 
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 
 if nargin <3 
     Nread = 2; % default number of reads per frequnecy setting

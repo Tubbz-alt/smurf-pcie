@@ -25,7 +25,7 @@ function chan = setupNotches_umux16_singletone(rootPath,Adrive,bandCenter,resona
 
     
     if nargin < 1
-        rootPath='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'; 
+        rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:']; 
     end
 
     if nargin < 2

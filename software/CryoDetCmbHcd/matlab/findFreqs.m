@@ -3,13 +3,15 @@
 % System has 8 500MHz bands, centered on 8 different frequencies.
 % All of our testing so far has been on the band centered at 5.25GHz.
 
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:']
+
 bandCenterMHz = lcaGet([rootPath,'bandCenterMHz']);
 ctime=ctimeForFile;
 Adrive=11;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 % bands=[0 16];
 %bands=0:31;
-bands=[9 25 10 26 11 27 12 28 13 29 14 30 15 31 0 16 1 17 2 18 3 19 4 20 5 21 6 22 7];
-%bands=0;
+%bands=[9 25 10 26 11 27 12 28 13 29 14 30 15 31 0 16 1 17 2 18 3 19 4 20 5 21 6 22 7];
+bands=0;
 
 % sweep all bands
 [f,resp]=fullBandAmplSweep(bands,Adrive);

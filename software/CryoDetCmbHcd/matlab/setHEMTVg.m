@@ -11,7 +11,7 @@ if bit>524287
     bit=524287
 end
 
-rtmSpiMaxRootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:RtmSpiMax:';
+rtmSpiMaxRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:RtmSpiMax:'];
 
 %% set RtmCryoDet
 %lcaPut( [rtmRootPath, 'LowCycle'],  num2str(2)); 

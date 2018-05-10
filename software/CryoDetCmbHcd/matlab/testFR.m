@@ -276,8 +276,8 @@ function [frameFreq,frameFreqError,frameStrobe] = getFrame( rootPath )
     
     time=tsamp*(0:1:data_length-1);
     
-    setupDaqMux( 'mitch_epics', 'debug', [], data_length);
-    results       = readStreamData( 'mitch_epics', data_length); 
+    setupDaqMux( getSMuRFenv('SMURF_EPICS_ROOT'), 'debug', [], data_length);
+    results       = readStreamData( getSMuRFenv('SMURF_EPICS_ROOT'), data_length); 
 
     %%
     freqWordTemp = results(1,:);

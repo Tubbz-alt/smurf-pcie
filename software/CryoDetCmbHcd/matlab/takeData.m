@@ -4,7 +4,7 @@ function filename=takeData(Npts,rootPath)
     end
 
     if nargin < 2
-        rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+        rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
     end
     
     % check if we're in single channel mode; if we are get the channel

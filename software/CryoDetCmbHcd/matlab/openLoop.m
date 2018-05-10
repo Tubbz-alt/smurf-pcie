@@ -2,7 +2,7 @@
 % SHOULD MAKE A MORE CONVENIENT WAY OF GETTING A SHORT SEGMENT OF DATA
 % sets the specified channels in open loop.
 function openLoop(chans)
-    rootPath='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
     
     % show plots and stuff
     debug=true;

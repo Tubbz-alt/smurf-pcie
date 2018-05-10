@@ -34,8 +34,8 @@ for takedata = [1 0]
 if takedata == 1
     
 % enable tone file output
-    lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','waveformSelect'], useToneFile);
-    lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','waveformStart'], useToneFile);
+    lcaPut([[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'],'waveformSelect'], useToneFile);
+    lcaPut([[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'],'waveformStart'], useToneFile);
     
     %%%%Set Playback file to single tone%%%%%%
 system('source /afs/slac/g/lcls/package/pyrogue/control-server/current/setup_epics.sh');
@@ -267,8 +267,8 @@ takeDebugData( rootPath, fileName, dataLength, dataType, channel )
 %  title(['Full Band Plot for Band ' num2str(Band) ' (DAC/Up/Down convert/ADC)']);
 
 % restore DSP output
-    lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','waveformSelect'], 0);
-    lcaPut(['mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','waveformStart'], 0);
+    lcaPut([[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'],'waveformSelect'], 0);
+    lcaPut([[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'],'waveformStart'], 0);
 
 end
 anadata=1;

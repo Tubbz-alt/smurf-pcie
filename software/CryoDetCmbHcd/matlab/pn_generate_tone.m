@@ -3,7 +3,7 @@ function pn_generate_tone(phaseNoiseDecimation, fullScaleDiv2, freqMHz)
 %% mostly used for setting up tones before taking actual data
 
 
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 Fadc     = 614.4e6;
 
 %% Setup phase noise measurement parameters

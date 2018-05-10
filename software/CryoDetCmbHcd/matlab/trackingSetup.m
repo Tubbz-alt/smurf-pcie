@@ -26,7 +26,7 @@ end
 
 
 
-root = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+root = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 
 lcaPut( [root, 'lmsDelay'],   lmsDelay   )
 lcaPut( [root, 'lmsDlyFine'],   lmsDlyFine   )
