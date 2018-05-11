@@ -303,7 +303,7 @@ AMCc:
             DacReg[73]: 0x0000  # JESD Link selection.  Seems it should be set like the eval board.
             DacReg[74]: 0x0f01  # Turns on serdes 0-3 and does NOT reset JESD reset.
             DacReg[75]: 0x0F01  # Number of octates per fram (1) and elastic buffers as set on eval board
-            DacReg[76]: 0x1F03  # Number of JESD lanes being use (3 - means 4) and 16 frames per multifame.  
+            DacReg[76]: 0x0F03  # Number of JESD lanes being use (3 - means 4) and 16 frames per multifame.  
             DacReg[77]: 0x0300  # Number of converters per link - 4
             DacReg[78]: 0x0f2f  # Enable scrambler
             DacReg[79]: 0x1c61
@@ -416,7 +416,7 @@ AMCc:
               LANE_ALIGN: 0x0
               TESTMODE_EN: 0x0
               CTRL_K: 0x1
-              FRAMES_PER_MULTIFRAME: 0x1F
+              FRAMES_PER_MULTIFRAME: 0x0F
         ###########################################
         ## System Generator Configuration Registers
         ###########################################
