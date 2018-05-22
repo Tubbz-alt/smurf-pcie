@@ -1,6 +1,10 @@
-function [phase_all, psd_pow, pwelch_f, time]=demod_gen2(dfn,numPhi0)
-    % assume rtm is enable if user says nothing
+function [phase_all, psd_pow, pwelch_f, time]=demod_gen2(dfn,swapFdF,numPhi0)
     if nargin < 2
+        swapFdF = false;
+    end
+
+    % assume rtm is enable if user says nothing
+    if nargin < 3
         numPhi0 = 'rtm';
     end
 
@@ -55,7 +59,7 @@ function [phase_all, psd_pow, pwelch_f, time]=demod_gen2(dfn,numPhi0)
     outputName = sprintf('./output/%s_output.mat',dfname);
 
     % run the demod
-    [phase_all, psd_pow, pwelch_f, time] = process_demod(fileName, cfg, numPhi0, phi0Rate, decimation, outputName,fsamp);
+    [phase_all, psd_pow, pwelch_f, time] = process_demod(fileName, cfg, numPhi0, phi0Rate, decimation, outputName,fsamp,swapFdF);
 
     % save results
     %save(strcat(folder, outputName, '.mat'))
