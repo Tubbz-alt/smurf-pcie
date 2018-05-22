@@ -13,13 +13,14 @@ function filename=takeData(Npts,rootPath)
 
     % are we in single channel readout mode, and if so, on what channel?
     singleChannelReadoutOpt2 = lcaGet([rootPath 'singleChannelReadoutOpt2']);
+    singleChannelReadout = lcaGet([rootPath 'singleChannelReadout']);
     readoutChannelSelect = lcaGet([rootPath 'readoutChannelSelect']);
 
     ctime=ctimeForFile();
     filename=num2str(ctime);
     
     % add channel suffix for single channel data
-    if singleChannelReadoutOpt2==1
+    if singleChannelReadoutOpt2==1 || singleChannelReadout==1
         filename=[filename '_Ch' num2str(readoutChannelSelect)]
     end
     
