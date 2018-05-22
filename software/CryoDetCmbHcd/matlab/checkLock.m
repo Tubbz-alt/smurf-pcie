@@ -11,6 +11,16 @@ function lockedChannels=checkLock(chans)
         % number because matlab doesn't zero index
         chans=chans+1;
     end
+    
+    
+    pre_singleChannelReadoutOpt2 = lcaGet([rootPath 'singleChannelReadoutOpt2']);
+    pre_singleChannelReadout = lcaGet([rootPath 'singleChannelReadout']);
+    pre_iqStreamEnable = lcaGet([rootPath 'iqStreamEnable']);
+    
+    % checkLock needs to take data in all channel mode
+    lcaPut([rootPath 'singleChannelReadoutOpt2'],0);
+    lcaPut([rootPath 'singleChannelReadout'],0);
+    lcaPut([rootPath 'iqStreamEnable'],0);
 
     % take a short dumb dataset
     dfn='/tmp/tmp2.dat';
@@ -74,4 +84,9 @@ function lockedChannels=checkLock(chans)
     disp(sprintf('numChannels=%d',numChannels));
     disp(sprintf('numKilled=%d',numKilled));
     disp(sprintf('numGood=%d (%0.1f%%)',numGood,100.*(numGood/numChannels)));
+    
+    % return system to state when checkLock was called
+    lcaPut([rootPath 'singleChannelReadoutOpt2'],pre_singleChannelReadoutOpt2);
+    lcaPut([rootPath 'singleChannelReadout'],pre_singleChannelReadout);
+    lcaPut([rootPath 'iqStreamEnable'],pre_iqStreamEnable);
 end
