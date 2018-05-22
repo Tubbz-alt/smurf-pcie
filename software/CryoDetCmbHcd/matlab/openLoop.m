@@ -1,16 +1,26 @@
 % NEED TO ADD SINGLE CHANNEL HANDLING; right now takes data on all
 % SHOULD MAKE A MORE CONVENIENT WAY OF GETTING A SHORT SEGMENT OF DATA
 % sets the specified channels in open loop.
-function openLoop(chans)
+function openLoop()
+    chans=whichOn;
     rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
     
     % show plots and stuff
     debug=true;
     
-    % make sure we're taking data on all channels
-    lcaPut([rootPath,'singleChannelReadoutOpt2'], 0);
+    pre_singleChannelReadoutOpt2 = lcaGet([rootPath 'singleChannelReadoutOpt2']);
+    pre_singleChannelReadout = lcaGet([rootPath 'singleChannelReadout']);
+    pre_iqStreamEnable = lcaGet([rootPath 'iqStreamEnable']);
     
-    [f,df,frs]=getData(rootPath,2^22);
+    % checkLock needs to take data in all channel mode
+    lcaPut([rootPath 'singleChannelReadoutOpt2'],0);
+    lcaPut([rootPath 'singleChannelReadout'],0);
+    lcaPut([rootPath 'iqStreamEnable'],0);
+    
+    %% broken right now for some reason
+    %[f,df,frs]=getData(rootPath,2^22);
+    % take a short dumb dataset
+    [f,df,frs]=quickData;
     
     % loop over channels
     for chan=chans
@@ -50,7 +60,7 @@ function openLoop(chans)
         configCryoChannel(rootPath, chan, Foff, ampl, 0, etaPhaseDegree, etaMagScaled);
         
         % verify we are now in open loop
-        [f2,df2,frs2]=getData(rootPath,2^22);
+        [f2,df2,frs2]=quickData;
         figure;
         
         fchan2=f2(:,chan+1);
@@ -68,6 +78,11 @@ function openLoop(chans)
             hold off;     
         end
     end
+    
+    % return system to state when checkLock was called
+    lcaPut([rootPath 'singleChannelReadoutOpt2'],pre_singleChannelReadoutOpt2);
+    lcaPut([rootPath 'singleChannelReadout'],pre_singleChannelReadout);
+    lcaPut([rootPath 'iqStreamEnable'],pre_iqStreamEnable);
 end
 
 %% Old, only works on a single channel
