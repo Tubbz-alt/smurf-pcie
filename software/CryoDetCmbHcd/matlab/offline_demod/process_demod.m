@@ -1,5 +1,10 @@
 % fluxRampRate is determined from reset strobe
-function [phase_all, psd_pow, pwelch_f, time] = process_demod(fileName, cfg, numPhi, phi0Rate, decimation, outputName, fsamp)
+function [phase_all, psd_pow, pwelch_f, time] = process_demod(fileName, cfg, numPhi, phi0Rate, decimation, outputName, fsamp, swapFdF)
+
+% assume rtm is enable if user says nothing
+if nargin < 8
+    swapFdF = false;
+end
 
 %fundamental sample rate; try for single and all channel data
 pA_per_uPhi0 = 9e-6; %pA/uPhi0
@@ -54,7 +59,11 @@ try
     %plot(exsyncf(1:2000));
     
 catch
-    [freq, ~, sync] = decodeSingleChannel(fileName);
+    if ~swapFdF
+        [freq, ~, sync] = decodeSingleChannel(fileName);
+    else
+        [~, freq, sync] = decodeSingleChannel(fileName);
+    end
     freq = freq';
     
     sync_f = sync;
@@ -218,16 +227,20 @@ for i=1:n_channels
 end
 
 fsubset_min=10;
-fsubset_max=50;
+fsubset_max=100;
 freqs_subset_idxs = find((pwelch_f>fsubset_min)&(pwelch_f<fsubset_max));
 freqs_subset = pwelch_f(freqs_subset_idxs);
-psd_subset = sqrt((psd_pow(:,freqs_subset_idxs)))/360*9e-6*1e12;
+psd_subset = sqrt((psd_pow(:,freqs_subset_idxs)))/360*pA_per_uPhi0*1e12;
 psd_mean_in_subset = nanmean(psd_subset);
+psd_median_in_subset = median(psd_subset);
 
-%plot(freqs_subset,psd_subset,'LineWidth',2,'Color','green');
-%xl=xlim();
-%plot([min(pwelch_f(2:end)),max(pwelch_f)],[psd_mean_in_subset,psd_mean_in_subset],'LineWidth',2,'Color','green','LineStyle','--');
-%text((min(freqs_subset)+max(freqs_subset))/2.,psd_mean_in_subset/4.,sprintf('%0.0f pA/rt.Hz',psd_mean_in_subset),'FontSize',12,'HorizontalAlignment','center','Color','green');
+disp(sprintf('-> Median in noise subset : %0.1f pA/rtHz',psd_median_in_subset));
+disp(sprintf('-> Mean in noise subset : %0.1f pA/rtHz',psd_mean_in_subset));
+
+plot(freqs_subset,psd_subset,'LineWidth',2,'Color','green');
+xl=xlim();
+plot([min(pwelch_f(2:end)),max(pwelch_f)],[psd_mean_in_subset,psd_mean_in_subset],'LineWidth',2,'Color','black','LineStyle','--');
+text(0.1,psd_mean_in_subset/2.,sprintf('%0.0f pA/rt.Hz',psd_mean_in_subset),'FontSize',12,'HorizontalAlignment','center','Color','black');
 
 %psd_1Hz = sqrt(nanmean(psd_pow(:,freqs)))/360*9e-6*1e12;
 %psd_subset = sqrt(nanmean(psd_pow(:,freqs_subset)))/360*9e-6*1e12;
@@ -243,5 +256,5 @@ psd_mean_in_subset = nanmean(psd_subset);
 %minnoise_shawn_subset = min(psd_shawn_subset)
     
 disp(sprintf('-> saving results in %s',outputName));
-save(outputName, 'psd_freq', 'psd_phase_shawn', 'fluxRampRate', 'fileName', 'cfg','numPhi','phi0Rate','decimation','fsamp')
+save(outputName, 'psd_freq', 'psd_phase_shawn', 'phase_pow_filtered', 'fluxRampRate', 'fileName', 'cfg','numPhi','phi0Rate','decimation','fsamp','fsubset_min','fsubset_max','psd_mean_in_subset')
 end
