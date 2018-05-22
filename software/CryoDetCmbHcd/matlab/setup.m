@@ -21,14 +21,15 @@ function setup( band )
     root=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
     lcaPut([root,'iqSwapIn'], num2str(1));
     lcaPut([root,'iqSwapOut'], num2str(1));
-    lcaPut([root,'refPhaseDelay'], num2str(5));
-    lcaPut([root,'refPhaseDelayFine'], num2str(47));
+    lcaPut([root,'refPhaseDelay'], num2str(7));
+    lcaPut([root,'refPhaseDelayFine'], num2str(0));
     lcaPut([root,'toneScale'], num2str(2));
     lcaPut([root,'feedbackEnable'], num2str(1));
     lcaPut([root,'feedbackGain'], num2str(256));
     lcaPut([root,'feedbackLimit'], num2str(256));
     lcaPut([root,'feedbackPolarity'], num2str(1));
-    lcaPut([root, 'bandCenterMHz'], num2str(4250 + 500*band));
+    lcaPut([root,'bandCenterMHz'], num2str(4250 + 500*band));
+    lcaPut([root,'synthesisScale'], num2str(3));
 
 % disable all DAC
     for i = 0:8
