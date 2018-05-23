@@ -1,4 +1,4 @@
-function [eta, F0, latency, resp, f] = etaEstimator(band, freqs, Adrive, delF, doPlots)
+function [eta, F0, latency, resp, f] = etaEstimator(baseNumber, band, freqs, Adrive, delF, doPlots)
 %sweep frequencies in a band,
 % aquire complex repsonse vs frequency at dF block where eta is used
 % fit to dF/dS21 to estimate eta
@@ -26,7 +26,7 @@ F0 = 0;
 latency = 0;
 
 %dwell = 0.07; [resp, f] = etaScan(band, freqs, Nread, dwell, Adrive);
-dwell = 0.0; [resp, f] = fastEtaScan(band, freqs, Nread, dwell, Adrive);
+dwell = 0.0; [resp, f] = fastEtaScan(band, freqs, Nread, dwell, Adrive, baseNumber);
 
 a = abs(resp); idx = find(a==min(a),1);
 F0 = f(idx) %center frequency in MHz
