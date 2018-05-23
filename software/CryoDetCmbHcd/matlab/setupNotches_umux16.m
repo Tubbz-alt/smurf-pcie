@@ -1,9 +1,10 @@
-function ctime = setupNotches_umux16_singletone(rootPath,Adrive,doPlots)
+function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
     tic
     
     if nargin < 1
-        rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:']; 
+        baseNumber=0;
     end
+    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)]; 
 
     if nargin < 2
         Adrive=10; % roughly -33dBm at connector on SMuRF card output
@@ -48,7 +49,13 @@ function ctime = setupNotches_umux16_singletone(rootPath,Adrive,doPlots)
     end
     
     bandCenterMHz = lcaGet([rootPath,'bandCenterMHz']);
+    numberChannels = lcaGet([rootPath,'numberChannels']);
     numberSubBands = lcaGet([rootPath,'numberSubBands']);
+    
+    numberOfChannelsPerSubBand=floor(numberChannels/numberSubBands);
+    % ideally this should be the same as the number of channels allocated
+    % per sub-band; but in some testing fw limits us to fewer.
+    maxNumChannelsPerSubBand=numberOfChannelsPerSubBand;
     
     bandchans = zeros(numberSubBands,1);
 
@@ -69,7 +76,7 @@ function ctime = setupNotches_umux16_singletone(rootPath,Adrive,doPlots)
         display('_________________________________________________')
 
         display(['Calibrate line at RF = ' num2str(res) ' MHz  IF = ' num2str(res - bandCenterMHz + 750) ' Mhz'])
-        [band, Foff] = f2band(res,bandCenterMHz);
+        [band, Foff] = f2band(res,baseNumber);
         band
         Foff
     
@@ -77,17 +84,21 @@ function ctime = setupNotches_umux16_singletone(rootPath,Adrive,doPlots)
         % right now, firmware limited to only being able
         % to track 8 channels per band; set that as a hard
         % limit
-        maxNumChannelsPerSubband=8;
-        if bandchans(band+1)==maxNumChannelsPerSubband
-            disp(sprintf('!! Exceeded maxNumChannelsPerSubband=%d in band %d, have to skip this resonator at %0.3f GHz',maxNumChannelsPerSubband,band,res));
+        if bandchans(band+1)==maxNumChannelsPerSubBand
+            disp(sprintf('!! Exceeded maxNumChannelsPerSubBand=%d in band %d, have to skip this resonator at %0.3f GHz',maxNumChannelsPerSubBand,band,res));
             continue;
         end
+
+        % old way
+        %bandchans(band+1) = bandchans(band+1)+1;
+        %chan(ii) = 16*band + bandchans(band+1) -1;
+        channelOrder=getChannelOrder();
+        chan(ii)=channelOrder(band*numberOfChannelsPerSubBand+1+bandchans(band+1));
         bandchans(band+1) = bandchans(band+1)+1;
-        chan(ii) = 16*band + bandchans(band+1) -1;
         offset(ii) = Foff;
 
         try     
-            [eta, F0, latency, resp, f] = etaEstimator(band, [(offset(ii) - FsweepFHalf):FsweepDf:(offset(ii) + FsweepFHalf)],Adrive,delF,doPlots);
+            [eta, F0, latency, resp, f] = etaEstimator(baseNumber, band, [(offset(ii) - FsweepFHalf):FsweepDf:(offset(ii) + FsweepFHalf)],Adrive,delF,doPlots);
           
             if doPlots
                 hold on; subplot(2,2,4);
