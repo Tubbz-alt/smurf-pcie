@@ -12,7 +12,7 @@ Adrive=10;
 % bands=[0 16];
 %bands=0:31;
 %bands=[9 25 10 26 11 27 12 28 13 29 14 30 15 31 0 16 1 17 2 18 3 19 4 20 5 21 6 22 7];
-bands=66;
+bands=63;
 
 % sweep all bands
 [f,resp]=fullBandAmplSweep(bands,Adrive,baseNumber);
