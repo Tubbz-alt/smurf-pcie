@@ -26,7 +26,7 @@ function setup( band )
     lcaPut([root,'toneScale'], num2str(2));
     lcaPut([root,'feedbackEnable'], num2str(1));
     lcaPut([root,'feedbackGain'], num2str(256));
-    lcaPut([root,'feedbackLimit'], num2str(256));
+    lcaPut([root,'feedbackLimit'], num2str(1024));
     lcaPut([root,'feedbackPolarity'], num2str(1));
     lcaPut([root,'bandCenterMHz'], num2str(4250 + 500*band));
     lcaPut([root,'synthesisScale'], num2str(3));
