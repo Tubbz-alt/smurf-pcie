@@ -83,7 +83,7 @@ Q = Q/2^23;
 resp = I + 1i*Q;    %form complex response
 
 Adrive = 0; % turn channel OFF
-configCryoChannel( baseRootPath, subchan, freqs(ceil(end/2)), Adrive, 0, 0, 0 ) ;
+configCryoChannel( baseNumber, subchan, freqs(ceil(end/2)), Adrive, 0, 0, 0 ) ;
 
 end
 % end of function etaScan2
