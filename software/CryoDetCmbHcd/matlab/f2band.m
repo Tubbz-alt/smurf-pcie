@@ -5,7 +5,7 @@ function [band, Foff] = f2band(F,baseNumber)
     bandCenterMHz=lcaGet([baseRootPath,'bandCenterMHz']);
     subBandWidthMHz=2*digitizerFrequencyMHz/numberSubBands;
     
-    [subBands,subBandCenters]=getSubBands(baseNumber);
+    [subBands,subBandCenters]=getSubBandCenters(baseNumber);
     
     % find band whose center frequency is closest
     [absdiff subBandIndex] = min(abs(subBandCenters-F));
