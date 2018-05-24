@@ -4,7 +4,7 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
     if nargin < 1
         baseNumber=0;
     end
-    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)]; 
+    baseRootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)]; 
 
     if nargin < 2
         Adrive=10; % roughly -33dBm at connector on SMuRF card output
@@ -48,9 +48,9 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
         close all;
     end
     
-    bandCenterMHz = lcaGet([rootPath,'bandCenterMHz']);
-    numberChannels = lcaGet([rootPath,'numberChannels']);
-    numberSubBands = lcaGet([rootPath,'numberSubBands']);
+    bandCenterMHz = lcaGet([baseRootPath,'bandCenterMHz']);
+    numberChannels = lcaGet([baseRootPath,'numberChannels']);
+    numberSubBands = lcaGet([baseRootPath,'numberSubBands']);
     
     numberOfChannelsPerSubBand=floor(numberChannels/numberSubBands);
     % ideally this should be the same as the number of channels allocated
@@ -153,6 +153,10 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
     % update convenient link to most recent etaScan parameters
     system('rm /data/cpu-b000-hp01/cryo_data/data2/current_eta');
     system(sprintf('ln -s %s /data/cpu-b000-hp01/cryo_data/data2/current_eta',etaOutFileName));
+    
+    % also save system configuration for etaScan in eta directory
+    runFileName=fullfile(resultsDir,[num2str(ctime),'.mat']);
+    writeRunFile(baseRootPath,runFileName);
 
     reLock;
 
