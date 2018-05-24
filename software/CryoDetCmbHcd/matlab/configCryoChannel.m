@@ -1,7 +1,7 @@
 % configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feedbackEnable, etaPhase, etaMag )
 %    rootPath       - sysgen root path
 %    channelNum     - cryo channel number (0...511)
-%    frequency      - frequency within sub-band (MHz) (-19.2...19.2)
+%    frequency      - frequency within sub-band (MHz) (-digitizerFrequencyMHz/numberSubBands (MHz)...+digitizerFrequencyMHz/numberSubBands (MHz))
 %    amplitude      - amplitdue 0...15  (15 full scale)
 %    feedbackEnable - enable feedback
 %    etaPhase       - feedback ETA phase (deg) (-180 180)
@@ -9,13 +9,13 @@
 %
 
 
-function configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feedbackEnable, etaPhase, etaMag )
-    pvRoot = [rootPath, 'CryoChannels:CryoChannel[', num2str(channelNum), ']:'];
+function configCryoChannel( baseNumber, channelNum, frequency_mhz, amplitude, feedbackEnable, etaPhase, etaMag )
+    baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)];
+    cryoChannelsRootPath = [baseRootPath, 'CryoChannels:CryoChannel[', num2str(channelNum), ']:'];
     
-    
-    n_channels = 32;
-    band = 614.4;
-    sub_band = band./(n_channels/2); % oversample by 2
+    numberSubBands = lcaGet([baseRootPath,'numberSubBands']);
+    band = lcaGet([baseRootPath,'digitizerFrequencyMHz']);
+    sub_band = band./(numberSubBands/2); % oversample by 2
     
     % limit frequency to +/- sub-band/2
     if frequency_mhz > sub_band/2
@@ -26,7 +26,7 @@ function configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feed
         freq = frequency_mhz;
     end
     
-    lcaPut( [pvRoot, 'centerFrequencyMHz'], freq );
+    lcaPut( [cryoChannelsRootPath, 'centerFrequencyMHz'], freq );
     
     % amp 0 - 15
     if amplitude > 15
@@ -36,10 +36,10 @@ function configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feed
     else
         amp = amplitude;
     end
-    lcaPut( [pvRoot, 'amplitudeScale'], amp );
+    lcaPut( [cryoChannelsRootPath, 'amplitudeScale'], amp );
     
     
-    lcaPut( [pvRoot, 'feedbackEnable'], feedbackEnable );
+    lcaPut( [cryoChannelsRootPath, 'feedbackEnable'], feedbackEnable );
     
     % phase, wrap to +/- 180
     phase = etaPhase;
@@ -50,6 +50,6 @@ function configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feed
         phase = phase + 360;
     end
     
-    lcaPut( [pvRoot, 'etaPhaseDegree'], phase );
+    lcaPut( [cryoChannelsRootPath, 'etaPhaseDegree'], phase );
     
-    lcaPut( [pvRoot, 'etaMagScaled'], etaMag );
+    lcaPut( [cryoChannelsRootPath, 'etaMagScaled'], etaMag );
