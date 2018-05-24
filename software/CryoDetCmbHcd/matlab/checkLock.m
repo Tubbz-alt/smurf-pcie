@@ -1,9 +1,9 @@
-function lockedChannels=checkLock(chans)
-    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
+function lockedChannels=checkLock(baseNumber,chans)
+    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)];
     [status,cmdout]=system('readlink /data/cpu-b000-hp01/cryo_data/data2/current_eta');
     etaIn=load(deblank(cmdout));
     
-    if nargin < 1
+    if nargin < 2
         % index of channel in etaOut array is +1 the channel
         chans=find(~cellfun(@isempty,{etaIn.etaOut.chan}));
     else
@@ -73,7 +73,7 @@ function lockedChannels=checkLock(chans)
             % disable channel by setting amplitudeScale and feedbackEnable
             % to zero.
             %function configCryoChannel( rootPath, channelNum, frequency_mhz, amplitude, feedbackEnable, etaPhase, etaMag )
-            configCryoChannel(rootPath,chan,centerFrequencyMHz, 0, 0, etaPhaseDegree, etaMagScaled);
+            configCryoChannel(baseNumber,chan,centerFrequencyMHz, 0, 0, etaPhaseDegree, etaMagScaled);
             
             numKilled=numKilled+1;
         else
