@@ -23,5 +23,5 @@ function res=findAllPeaks(sweepDataFile,bands,plotsaveprefix)
         fprintf('bandnum %d : %s\n', bandnum,g);
         res=horzcat(res,bandres);
     end
-    fprintf('nres=%d\n',nres);
+    %fprintf('nres=%d\n',nres);
 end

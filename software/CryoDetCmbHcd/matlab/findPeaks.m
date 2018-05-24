@@ -16,7 +16,12 @@ function fp = findPeaks(sweep,bandnum,plotsaveprefix)
     
     % peak finding threshold; doesn't take into account 
     % whether or not data is normalized before peak finding
-    threshold=0.5;
+    threshold=0.45;
+    
+    % other algorithm parmaeters I need to document
+    fmarginfactor=5;
+    phaseMinCut=pi/10;
+    phaseMaxCut=pi;
             
     %% gaussian filter for smoothing; not used right now
     %% whether or not to apply smoothing
@@ -57,7 +62,7 @@ function fp = findPeaks(sweep,bandnum,plotsaveprefix)
         if doplot
             % phase diff and peaks
             if get(gcf,'Number')==1
-                figure(1);
+                figure(11);
             else
                 figure(get(gcf,'Number')+1);
             end
@@ -98,7 +103,7 @@ function fp = findPeaks(sweep,bandnum,plotsaveprefix)
                 disp(['pk' int2str(jj)]);
                 disp(pkfreqs(jj));
             end
-            fmargin=df*5;
+            fmargin=df*fmarginfactor;
             kk=find((freqs>pkfreqs(jj)+fmargin)&(freqs<pkfreqs(jj+1)-fmargin));
             freqs_kk=freqs(kk);
             phase_kk=phase(kk);
@@ -164,7 +169,8 @@ function fp = findPeaks(sweep,bandnum,plotsaveprefix)
                 end
                 
                 % make sure phase discontinuity is physical.
-                if dPhr>pi/4 && dPhr<pi
+                %if dPhr>pi/4 && dPhr<pi
+                if dPhr>phaseMinCut && dPhr<phaseMaxCut
                     if plotph
                         rcolor=rand(1,3);
                         plot(freqs(kk),phase_bcorr(kk),'-','color',rcolor,'LineWidth',2);
