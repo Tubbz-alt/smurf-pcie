@@ -1,6 +1,8 @@
 
 function [F, dF, fluxRampStrobe] = decodeData(file,swapFdF)
 
+% digitizerFrequencyMHz/numberSubBands
+subBandHalfWidthMHz=4.8;
 
 % if swapFdF =0 then f stream first, df second
 % if swapFdF=1 then f stream second, dF stream first
@@ -39,7 +41,7 @@ if mod(length(F),512)~=0
     Npoints = length(F)/512;  % bug??
     F = [];
 else
-    F = reshape(F,512,[]) * 19.2/2^23;
+    F = reshape(F,512,[]) * subBandHalfWidthMHz/2^23;
     F = F';
 end
 
@@ -62,7 +64,7 @@ if ~isempty(ch0idx)
         Npoints = length(dF)/512;  % bug??
         dF = [];
     else
-        dF = reshape(dF,512,[]) * 19.2/2^23;
+        dF = reshape(dF,512,[]) * subBandHalfWidthMHz/2^23;
         dF = dF';
     end
 
