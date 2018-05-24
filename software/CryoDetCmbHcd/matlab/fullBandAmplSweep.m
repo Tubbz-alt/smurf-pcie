@@ -36,7 +36,7 @@ function [f,resp]=fullBandAmplSweep(bands,Adrive,baseNumber,Nread,dwell,freqs)
     resp = zeros(numberSubBands, size(freqs,2)*Nread);
     f = zeros(numberSubBands, size(freqs,2)*Nread);
 
-    [band_numbers,band_centers]=getSubBands(baseNumber,true);
+    [band_numbers,band_centers]=getSubBandCenters(baseNumber,true);
 
     %for band=0:31
     for band=bands
