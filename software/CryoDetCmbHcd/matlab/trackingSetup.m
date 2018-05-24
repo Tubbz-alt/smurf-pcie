@@ -83,6 +83,7 @@ for freq = optFreqRange
 end
 
 lcaPut( [root, 'singleChannelReadoutOpt2'], 0) % return to multichannel state
+lcaPut( [root, 'iqStreamEnable'],  1  ) % hand off streaming I/Q
 %lcaPut( [root, 'lmsFreqHz'], 3020 * rampStep) % default here
 
 % nominally 3025Hz/step size is working
