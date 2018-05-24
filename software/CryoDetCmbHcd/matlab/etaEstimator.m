@@ -76,12 +76,17 @@ if doPlots
     %axis([-0.25 0.25 -0.25 0.25])
 end
 
+baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)];
+digitizerFrequencyMHz=lcaGet([baseRootPath,'digitizerFrequencyMHz']);
+numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
+subBandHalfWidthMHz=(digitizerFrequencyMHz/numberSubBands);
+
 %estimate eta
 eta = (f(right)-f(left))/(resp(right)-resp(left))
 etaMag = abs(eta);   %magnitude in MHz per unit response
 etaPhase = angle(eta);
 etaPhaseDeg = angle(eta)*180/pi
-etaScaled = etaMag/19.2
+etaScaled = etaMag/subBandHalfWidthMHz
 
 if doPlots
     %figure(4)
@@ -104,7 +109,9 @@ end
 function [resp, f] = etaScan(band, freqs, Nread, dwell, Adrive)
 % Sweep frequency, plot complex response at input to dF calculation
 % band selects one of 32 sub bands (0:31  allowed)
-% freqs is a vector of frequencies in the range -19.2 (MHz) to + 19.2 (MHz)
+% freqs is a vector of frequencies in the range 
+% - digitizerFrequencyMHz/numberSubBands (MHz) to 
+% + digitizerFrequencyMHz/numberSubBands (MHz)
 
 % resp is complex response demodulated response
 % Nread (optional) number of reads of response per frequency setting
@@ -146,8 +153,12 @@ if band <0 | band > 31
     return
 end
 
-if min(freqs) < -19.2  |  max(freqs) > 19.2
-    display('frequencies must be in range +-19.2 MHz')
+baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)];
+digitizerFrequencyMHz=lcaGet([baseRootPath,'digitizerFrequencyMHz']);
+numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
+subBandHalfWidthMHz=(digitizerFrequencyMHz/numberSubBands);
+if min(freqs) < -subBandHalfWidthMHz  |  max(freqs) > subBandHalfWidthMHz
+    display(sprintf('frequencies must be in range +-%0.2f MHz',subBandHalfWidthMHz))
     return
 end
 
