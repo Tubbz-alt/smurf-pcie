@@ -1,9 +1,12 @@
 
 function [F, dF, fluxRampStrobe] = decodeSingleChannel(file, swapFdF)
 
+% digitizerFrequencyMHz/numberSubBands
+subBandHalfWidthMHz=4.8;
+
 % if swapFdF =0 then f stream first, df second
 % if swapFdF=1 then f stream second, dF stream first
-if nargin < 2
+if nargin < 3
     swapFdF = 0;
 end
 
@@ -33,7 +36,7 @@ if ~isempty(neg)
     F(neg) = F(neg)-2^24;
 end
 
-F = F' * 19.2/2^23;
+F = F' * subBandHalfWidthMHz/2^23;
 
 %decode frequency errors 
 df = data(:,nDF);
@@ -43,4 +46,4 @@ if ~isempty(neg)
     dF(neg) = dF(neg)-2^24;
 end
 
-dF = dF' * 19.2/2^23;
+dF = dF' * subBandHalfWidthMHz/2^23;
