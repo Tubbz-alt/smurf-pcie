@@ -1,10 +1,12 @@
 close all
-clear
+%clear
 %
 %file = '/afs/slac/g/lcls/epics/R3-14-12-4_1-1/iocTop/users/mdewart/cryo-data/fw_demod/1526483838_Ch0.dat'; % closed loop, banging
-file = '/afs/slac/g/lcls/epics/R3-14-12-4_1-1/iocTop/users/mdewart/cryo-data/fw_demod/1526562710_Ch0.dat'; % open loop, banging
+%file = '/afs/slac/g/lcls/epics/R3-14-12-4_1-1/iocTop/users/mdewart/cryo-data/fw_demod/1526562710_Ch0.dat'; % open loop, banging
 %file = '/afs/slac/g/lcls/epics/R3-14-12-4_1-1/iocTop/users/mdewart/cryo-data/fw_demod/1526562813_Ch0.dat'; % open loop, stable
-
+%% one of the first datasets with new 4 ch/subband fw; checking if IQ streams in fw are misaligned
+%file = '/home/common/data/cpu-b000-hp01/cryo_data/data2/20180523/1527087477_Ch0.dat'
+%file='/home/common/data/cpu-b000-hp01/cryo_data/data2/20180523/1527094094_Ch0.dat';
 
 [F, dF, fluxRampStrobe] = decodeSingleChannel(file);
 
@@ -23,7 +25,7 @@ frameSize    = floor(mean(idx_diff(2:end-2)));
 fluxRampRate = Fs./frameSize;
 
 
-obs          = dF(idx(1):idx(end-1)-1);   % noisy observation, frame algined
+obs          = F(idx(1):idx(end-1)-1);   % noisy observation, frame algined
 numberFrames = length(obs)./frameSize;   % number of frames
 
 % reshape into frames for plotting - we've already frame algined
@@ -134,6 +136,48 @@ disp(['    1st harmonic/3rd harmonic: ', num2str(m1/m3)])
 disp(['    2nd harmonic/3rd harmonic: ', num2str(m2/m3)])
 disp(' ')
 
-[pxx, f] = pwelch(phase1-mean(phase1),[],[],[],fluxRampRate);
+phase = phase1-mean(phase1);
+[pxx, f] = pwelch(phase,[],[],[],fluxRampRate);
 figure;
 semilogx(f, 10*log10(pxx))
+
+    %figure;
+    pA_per_Phi0 = 9e-6; %pA/Phi0
+    %loglog(f, sqrt(pxx)/(2*pi)*pA_per_uPhi0*1e12, 'color', 'k')
+    pArtHz=sqrt(pxx)/(2*pi)*pA_per_Phi0*1e12;
+    %semilogx(f,(1.e6*sqrt(pxx)/(2.*pi))*9.e-6);
+    %ylim([1,1000]);
+    %semilogx(f, 10*log10(pxx))
+    grid minor
+
+figure
+plot(phase)
+fsubset_min=1;
+fsubset_max=10;
+freqs_subset_idxs = find((f>fsubset_min)&(f<fsubset_max));
+freqs_subset = f(freqs_subset_idxs);
+psd_subset = pArtHz(freqs_subset_idxs);
+psd_mean_in_subset = mean(psd_subset);
+psd_median_in_subset = median(psd_subset);
+psd_median_in_subset
+disp(sprintf('-> Median in noise subset : %0.1f pA/rtHz',psd_median_in_subset));
+disp(sprintf('-> Mean in noise subset : %0.1f pA/rtHz',psd_mean_in_subset));
+
+figure;
+loglog(f,pArtHz); hold on;
+xlabel('Frequency (Hz)','Interpreter','latex','FontSize',16);
+ylabel('Eq. TES Current Noise (pA/$\sqrt{\mathrm{Hz}}$)','Interpreter','latex','FontSize',16);
+ylim([1,psd_median_in_subset*10]);
+xmin=0.1;
+xmax=2000;
+xlim([xmin,xmax]);
+disp(sprintf('-> Median in noise subset : %0.1f pA/rtHz',psd_median_in_subset));
+disp(sprintf('-> Mean in noise subset : %0.1f pA/rtHz',psd_mean_in_subset));
+semilogx([xmin,xmax],[psd_median_in_subset,psd_median_in_subset],'--','color','red','LineWidth',2);
+xspan=xmax-xmin;
+text(xmin+xspan/10,psd_median_in_subset/3,sprintf('%0.1f pA/rtHz',psd_median_in_subset),'color','red');
+%title(sprintf('%s : %0.3f GHz, subband %d, channel %d',fname{1},F,band,cfg.readoutChannelSelect),'Interpreter','latex');
+%title(sprintf('%s : %0.3f GHz, subband %d, channel %d',fname{1},5250.783,63,cfg.readoutChannelSelect),'Interpreter','latex');
+
+
+
