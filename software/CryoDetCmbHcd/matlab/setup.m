@@ -1,5 +1,6 @@
 
 function setup( band )
+    baseNumber=0;
     if( ~exist('band', 'var' ) )
         band = 2;
     end
@@ -18,15 +19,18 @@ function setup( band )
     setEnv(getSMuRFenv('SMURF_EPICS_ROOT'))
     setDefaults
   
-    root=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
+    root=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)];
     lcaPut([root,'iqSwapIn'], num2str(1));
     lcaPut([root,'iqSwapOut'], num2str(1));
-    lcaPut([root,'refPhaseDelay'], num2str(7));
+    lcaPut([root,'refPhaseDelay'], num2str(6));
     lcaPut([root,'refPhaseDelayFine'], num2str(0));
     lcaPut([root,'toneScale'], num2str(2));
+    lcaPut([root,'analysisScale'], num2str(3));
     lcaPut([root,'feedbackEnable'], num2str(1));
     lcaPut([root,'feedbackGain'], num2str(256));
-    lcaPut([root,'feedbackLimit'], num2str(1024));
+    
+    setFeedbackLimitkHz(0,225);
+    
     lcaPut([root,'feedbackPolarity'], num2str(1));
     lcaPut([root,'bandCenterMHz'], num2str(4250 + 500*band));
     lcaPut([root,'synthesisScale'], num2str(3));
