@@ -1,10 +1,10 @@
-function filename=takeData(Npts,rootPath)
-    if nargin < 1
+function filename=takeData(band, Npts,rootPath)
+    if nargin < 2
         Npts=2^25;
     end
-
-    if nargin < 2
-        rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
+% FIXME use base number
+    if nargin < 3
+        rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
     end
     
     % check if we're in single channel mode; if we are get the channel
@@ -36,6 +36,6 @@ function filename=takeData(Npts,rootPath)
     % take data!
     disp('-> Jesd statusValidCnts before taking data');
     dumpJesdStatusValidCnts();
-    takeDebugData(rootPath,filename,Npts);
+    takeDebugData(band,filename,Npts);
     disp('-> Jesd statusValidCnts after taking data');
     dumpJesdStatusValidCnts();
