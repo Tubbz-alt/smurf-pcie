@@ -1,9 +1,9 @@
 % NEED TO ADD SINGLE CHANNEL HANDLING; right now takes data on all
 % SHOULD MAKE A MORE CONVENIENT WAY OF GETTING A SHORT SEGMENT OF DATA
 % sets the specified channels in open loop.
-function openLoop()
-    chans=whichOn;
-    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
+function openLoop(band)
+    chans=whichOn(band);
+    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
     
     % show plots and stuff
     debug=true;
@@ -20,7 +20,7 @@ function openLoop()
     %% broken right now for some reason
     %[f,df,frs]=getData(rootPath,2^22);
     % take a short dumb dataset
-    [f,df,frs]=quickData;
+    [f,df,frs]=quickData(band);
     
     % loop over channels
     for chan=chans
@@ -55,12 +55,12 @@ function openLoop()
         disp(sprintf('-> fixing chan%d to Foff = %0.3f MHz',chan, (fchan_min+fchan_span/2)));
         
         % get how channel is currently configured
-        [~, ampl, ~, etaPhaseDegree, etaMagScaled]=getCryoChannelConfig(rootPath,chan)
+        [~, ampl, ~, etaPhaseDegree, etaMagScaled]=getCryoChannelConfig(band,chan)
         % set channel to desired open loop offset frequency and turn fb off
-        configCryoChannel(rootPath, chan, Foff, ampl, 0, etaPhaseDegree, etaMagScaled);
+        configCryoChannel(band, chan, Foff, ampl, 0, etaPhaseDegree, etaMagScaled);
         
         % verify we are now in open loop
-        [f2,df2,frs2]=quickData;
+        [f2,df2,frs2]=quickData(band);
         figure;
         
         fchan2=f2(:,chan+1);
