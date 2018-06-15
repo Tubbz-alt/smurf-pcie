@@ -1,5 +1,5 @@
-function setFeedbackLimitkHz(baseNumber,desiredFeedbackLimitkHz)
-    baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)]
+function setFeedbackLimitkHz(band,desiredFeedbackLimitkHz)
+    baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
     digitizerFrequencyMHz = lcaGet([baseRootPath,'digitizerFrequencyMHz']);
     bandCenterMHz = lcaGet([baseRootPath,'bandCenterMHz']);
     numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
