@@ -1,10 +1,10 @@
-function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
+function resultsDir = setupNotches_umux16(band,Adrive,doPlots,lockBandAtEndOfEtaScan,resFile)
     tic
     
     if nargin < 1
-        baseNumber=0;
+        band=0;
     end
-    baseRootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)]; 
+    baseRootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)]; 
 
     if nargin < 2
         Adrive=10; % roughly -33dBm at connector on SMuRF card output
@@ -12,6 +12,10 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
     
     if nargin < 3
         doPlots=true;
+    end
+    
+    if nargin<4
+        lockBandAtEndOfEtaScan=true;
     end
     
     clearvars offset chan etaPhaseDeg etaScaled
@@ -31,7 +35,12 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
     % done creating directory for results
 
     %load the most recent resonator scan
-    M=dlmread('/data/cpu-b000-hp01/cryo_data/data2/current_res');
+    if nargin < 4
+        M=dlmread('/data/cpu-b000-hp01/cryo_data/data2/current_res');
+    else
+        M=dlmread(resFile);
+    end
+        
     resonators_all=M(:,3,:)';
 
     %resonators=resonators_all(resonators_all>5.2e3)
@@ -43,7 +52,7 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
     FsweepDf=0.002;
     delF=0.010; 
 
-    Off
+    Off(band);
     if doPlots
         close all;
     end
@@ -57,7 +66,10 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
     % per sub-band; but in some testing fw limits us to fewer.
     maxNumChannelsPerSubBand=numberOfChannelsPerSubBand;
     
-    bandchans = zeros(numberSubBands,1);
+    digitizerFrequencyMHz=lcaGet([baseRootPath,'digitizerFrequencyMHz']);
+    subBandHalfWidthMHz=(digitizerFrequencyMHz/numberSubBands);
+
+    subbandchans = zeros(numberSubBands,1);
 
     clear etaOut etaCfg;
     etaOut={};
@@ -76,29 +88,29 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
         display('_________________________________________________')
 
         display(['Calibrate line at RF = ' num2str(res) ' MHz  IF = ' num2str(res - bandCenterMHz + 750) ' Mhz'])
-        [band, Foff] = f2band(res,baseNumber);
-        band
+        [subband, Foff] = f2band(res,band);
+        subband
         Foff
     
         % track the number of channels in the band
         % right now, firmware limited to only being able
         % to track 8 channels per band; set that as a hard
         % limit
-        if bandchans(band+1)==maxNumChannelsPerSubBand
-            disp(sprintf('!! Exceeded maxNumChannelsPerSubBand=%d in band %d, have to skip this resonator at %0.3f GHz',maxNumChannelsPerSubBand,band,res));
+        if subbandchans(subband+1)==maxNumChannelsPerSubBand
+            disp(sprintf('!! Exceeded maxNumChannelsPerSubBand=%d in band %d, have to skip this resonator at %0.3f GHz',maxNumChannelsPerSubBand,subband,res));
             continue;
         end
 
         % old way
-        %bandchans(band+1) = bandchans(band+1)+1;
-        %chan(ii) = 16*band + bandchans(band+1) -1;
+        %subbandchans(subband+1) = subbandchans(subband+1)+1;
+        %chan(ii) = 16*subband + subbandchans(subband+1) -1;
         channelOrder=getChannelOrder();
-        chan(ii)=channelOrder(band*numberOfChannelsPerSubBand+1+bandchans(band+1));
-        bandchans(band+1) = bandchans(band+1)+1;
+        chan(ii)=channelOrder(subband*numberOfChannelsPerSubBand+1+subbandchans(subband+1));
+        subbandchans(subband+1) = subbandchans(subband+1)+1;
         offset(ii) = Foff;
 
         try     
-            [eta, F0, latency, resp, f] = etaEstimator(baseNumber, band, [(offset(ii) - FsweepFHalf):FsweepDf:(offset(ii) + FsweepFHalf)],Adrive,delF,doPlots);
+            [eta, F0, latency, resp, f, resonatorFit] = etaEstimator(band, subband, [(offset(ii) - FsweepFHalf):FsweepDf:(offset(ii) + FsweepFHalf)],Adrive,delF,doPlots);
           
             if doPlots
                 hold on; subplot(2,2,4);
@@ -116,7 +128,7 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
             end
                 
             etaPhaseDeg(ii) = angle(eta)*180/pi;
-            etaScaled(ii) =abs(eta)/19.2;
+            etaScaled(ii) =abs(eta)/subBandHalfWidthMHz;
         
             % will store result to disk
             etaOut(chan(ii)+1).('eta')=eta;
@@ -124,16 +136,22 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
             etaOut(chan(ii)+1).('latency')=latency;
             etaOut(chan(ii)+1).('resp')=resp;
             etaOut(chan(ii)+1).('f')=f;
+            etaOut(chan(ii)+1).('subband')=subband;
             etaOut(chan(ii)+1).('band')=band;
             etaOut(chan(ii)+1).('Foff')=Foff;
             etaOut(chan(ii)+1).('res')=res;
             etaOut(chan(ii)+1).('etaPhaseDeg')=etaPhaseDeg(ii);
             etaOut(chan(ii)+1).('etaScaled')=etaScaled(ii);
             etaOut(chan(ii)+1).('chan')=chan(ii);
-        
+            
+            etaOut(chan(ii)+1).('Icenter') =resonatorFit.Icenter;
+            etaOut(chan(ii)+1).('Qcenter') =resonatorFit.Qcenter;
+            etaOut(chan(ii)+1).('R')       =resonatorFit.R;
+            etaOut(chan(ii)+1).('error')   =std(resonatorFit.error);
+            
             if doPlots
                 % save plot for later review
-                figureFileName=fullfile(resultsDir,[num2str(ctime),'_etaEst_b',num2str(band),'ch',num2str(chan(ii)),'.png']);
+                figureFileName=fullfile(resultsDir,[num2str(ctime),'_etaEst_b',num2str(band),'_sb',num2str(subband),'ch',num2str(chan(ii)),'.png']);
                 saveas(gcf,figureFileName);
             end
         catch
@@ -158,7 +176,9 @@ function ctime = setupNotches_umux16_singletone(baseNumber,Adrive,doPlots)
     runFileName=fullfile(resultsDir,[num2str(ctime),'.mat']);
     writeRunFile(baseRootPath,runFileName);
 
-    reLock;
+    if lockBandAtEndOfEtaScan
+        reLock(band);
+    end
 
     toc;
 
