@@ -1,4 +1,4 @@
-function [cfg,phase,f,pArtHz]=plotIQNoise(fname,path2data)
+function [cfg,phase,amp,t,f,pArtHz]=plotIQNoise(fname,path2data)
 
     if nargin<2
         path2data='/home/common/data/cpu-b000-hp01/cryo_data/data2/';
@@ -26,6 +26,8 @@ function [cfg,phase,f,pArtHz]=plotIQNoise(fname,path2data)
     end
     
     phase = atan2(Q,I);
+    amp   = sqrt(I.^2 + Q.^2)*9.6e6/8; % check scaling to Hz
+    t     = (1:length(phase))./fs;
     %figure; 
     %plot(phase);
     [pxx, f] = pwelch(phase - mean(phase), [], [], [], fs);
@@ -39,5 +41,5 @@ function [cfg,phase,f,pArtHz]=plotIQNoise(fname,path2data)
     %ylim([1,1000]);
     
     %semilogx(f, 10*log10(pxx))
-    grid minor
+    %grid minor
 end
