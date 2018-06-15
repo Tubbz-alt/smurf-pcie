@@ -16,7 +16,7 @@ function readFpgaStatus( rootPath )
   
     axiVersionPath = [root, ':AMCc:FpgaTopLevel:AmcCarrierCore:AxiVersion'];
     jesdRxPath = [root, ':AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdRx' ];
-    jesdTxPath = [root, ':AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdRx' ];
+    jesdTxPath = [root, ':AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdTx' ];
     
     
     upTime     = lcaGet([axiVersionPath, ':UpTimeCnt']);
@@ -35,19 +35,19 @@ function readFpgaStatus( rootPath )
     disp(' ')
     disp(' ')
     
-    
-    jesdRxEnable = lcaGet([jesdRxPath, ':Enable']);
-    jesdRxValid  = lcaGet([jesdRxPath, ':DataValid']);
-    
-    if ( jesdRxEnable ~= jesdRxValid )
-        disp(' ');
-        disp(' ');
-        disp('JESD Rx DOWN'); 
-        disp(' ');
-        disp(' ');
-    else
-        disp('JESD Rx Okay');
-    end
+    %% These Jesd RX registers no present in JESD test firmware (ADI JESD core)
+%     jesdRxEnable = lcaGet([jesdRxPath, ':Enable']);
+%     jesdRxValid  = lcaGet([jesdRxPath, ':DataValid']);
+%     
+%     if ( jesdRxEnable ~= jesdRxValid )
+%         disp(' ');
+%         disp(' ');
+%         disp('JESD Rx DOWN'); 
+%         disp(' ');
+%         disp(' ');
+%     else
+%         disp('JESD Rx Okay');
+%     end
     
         
     jesdTxEnable = lcaGet([jesdTxPath, ':Enable']);
