@@ -20,10 +20,10 @@
 %    dataLength     - data length
 %    type           - type of data to take 'debug' 'adc' or 'dac'
 %    channel        - adc/dac channel argument
-
-
-function takeDebugData( rootPath, fileName, varargin )
+function takeDebugData( band, fileName, varargin )
     global DMBufferSizePV
+
+    rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)]
     
     numvarargs = length( varargin );
     optargs = {2^19, 'debug', 0};
@@ -47,7 +47,7 @@ function takeDebugData( rootPath, fileName, varargin )
         fullPath = fileName;
     end
 
-    setupDaqMux( rootPath, type, channel, dataLength ); 
+    setupDaqMux( band, type, channel, dataLength ); 
     
     disp('Data acquisiton in progress...')
     
@@ -68,18 +68,24 @@ function takeDebugData( rootPath, fileName, varargin )
     lcaPut([root, ':AMCc:streamDataWriter:open'], 'True')
 
     %triggerDM
-    disp(['Taking data...'])
+    dispstat('','init');
+    dispstat(['Taking data...'], 'keepthis','timestamp')
     triggerDM
     
 
     % how long to pause?
     
 %   Here we do a brief pause then monitor waveform engine done status
+    endAddr= lcaGet64Bit([root,':AMCc:FpgaTopLevel:AmcCarrierCore:AmcCarrierBsa:BsaWaveformEngine[0]:WaveformEngineBuffers:EndAddr[0]']);
+
+    prevPercentDone = 0;
+    percentDone     = 0;
     done = 0;
     pause(1)
     while done == 0
         done = 1;
         for j = 0:3
+            wrAddr= lcaGet64Bit([root,':AMCc:FpgaTopLevel:AmcCarrierCore:AmcCarrierBsa:BsaWaveformEngine[0]:WaveformEngineBuffers:WrAddr[0]']);
             empty = lcaGet([root,':AMCc:FpgaTopLevel:AmcCarrierCore:AmcCarrierBsa:BsaWaveformEngine[0]:WaveformEngineBuffers:Empty[', num2str(j), ']']);
             if empty == 0
                 done = 0;
@@ -87,9 +93,16 @@ function takeDebugData( rootPath, fileName, varargin )
         end
        pause(1) 
        % TODO add percent complete for large datasets..
-       fprintf('%s','%');
+       %fprintf('%s','%');
+       percentDone = 100*wrAddr./endAddr;
+       if ( prevPercentDone ~= 0 ) & ( percentDone == 0 )
+           dispstat([num2str(100) '%'],'timestamp')
+       else
+           dispstat([num2str(percentDone) '%'],'timestamp')
+           prevPercentDone = percentDone;
+       end
     end
-    disp(' ') % newline
+    dispstat('Finished acqusition', 'keepprev') % newline
 
 
     disp('Closing file...')
