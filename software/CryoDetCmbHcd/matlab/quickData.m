@@ -1,15 +1,15 @@
-function [f,df,frs]=quickData(Npts)
+function [f,df,frs]=quickData(band,Npts)
 
-    if nargin<1
-        Npts=2^20
+    if nargin<2
+        Npts=2^18
     end
 
     % take a short dumb dataset
     dfn='/tmp/tmp2.dat';
     system( ['rm ', dfn] );
 
-    rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
-    takeDebugData(rootPath,dfn,Npts);
+    rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
+    takeDebugData(band,dfn,Npts);
     
     %[f, df, frs] = decodeSingleChannel(dfn, 0);
     [f,df,frs]=decodeData(dfn);
