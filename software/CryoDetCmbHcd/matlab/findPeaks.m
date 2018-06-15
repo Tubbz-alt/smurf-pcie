@@ -35,8 +35,13 @@ function fp = findPeaks(sweep,bandnum,plotsaveprefix)
     for band=bandnum:bandnum    
         %% sometimes this data has multiple measurements at the same
         %% frequency.  Need to reduce.
-        freqs=sweep.f(band+1,:);
-        resp=sweep.resp(band+1,:);
+        try
+            freqs=sweep.f(band+1,:);
+            resp=sweep.resp(band+1,:);
+        catch
+            freqs = sweep.f;
+            resp = sweep.resp(:, band + 1);
+        end
         [freqs,resp]=reduce_fresp(freqs,resp);
         
         %% Extract I & Q for this band, compute the raw phase,

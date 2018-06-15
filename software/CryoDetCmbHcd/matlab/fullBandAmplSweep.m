@@ -1,18 +1,19 @@
-function [f,resp]=fullBandAmplSweep(bands,Adrive,baseNumber,Nread,dwell,freqs)
+function [f,resp]=fullBandAmplSweep(band,subbands,Adrive,Nread,dwell,freqs)
     %function amplSweep2
     %sweeps the full band
     f=[];
     resp=[];
+    
     if nargin < 1
-        bands=0:31
+        band=2;
     end
     
     if nargin < 2
-        Adrive = 10;
+        subbands=0:127
     end
     
     if nargin < 3
-        baseNumber=0;
+        Adrive = 10;
     end
     
     if nargin < 4
@@ -23,7 +24,7 @@ function [f,resp]=fullBandAmplSweep(bands,Adrive,baseNumber,Nread,dwell,freqs)
         dwell  =0.02;
     end
     
-    baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)]
+    baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)]
     digitizerFrequencyMHz=lcaGet([baseRootPath,'digitizerFrequencyMHz']);
     numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
     bandCenterMHz=lcaGet([baseRootPath,'bandCenterMHz']);
@@ -36,15 +37,14 @@ function [f,resp]=fullBandAmplSweep(bands,Adrive,baseNumber,Nread,dwell,freqs)
     resp = zeros(numberSubBands, size(freqs,2)*Nread);
     f = zeros(numberSubBands, size(freqs,2)*Nread);
 
-    [band_numbers,band_centers]=getSubBandCenters(baseNumber,true);
+    [subband_numbers,subband_centers]=getSubBandCenters(band,true);
 
-    %for band=0:31
-    for band=bands
-        disp(['band ' num2str(band)])
-        %[resp(band+1,:), f(band+1,:)] = amplSweep(band, freqs, Nread, dwell);
-        %[resp(band+1,:), f(band+1,:)] = fastEtaScan(band, freqs, Nread, dwell, Adrive);
-        [resp(band+1,:), f(band+1,:)] = fastEtaScan(band, freqs, Nread, dwell, Adrive, baseNumber);
-        f(band+1,:) = f(band+1,:) + band_centers(find(band_numbers==band));
+    for subband=subbands
+        disp(['subband ' num2str(subband)])
+        %[resp(subband+1,:), f(subband+1,:)] = amplSweep(subband, freqs, Nread, dwell);
+        %[resp(subband+1,:), f(subband+1,:)] = fastEtaScan(subband, freqs, Nread, dwell, Adrive);
+        [resp(subband+1,:), f(subband+1,:)] = fastEtaScan(band, subband, freqs, Nread, dwell, Adrive);
+        f(subband+1,:) = f(subband+1,:) + subband_centers(find(subband_numbers==subband));
     end
 end
 
