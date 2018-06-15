@@ -1,5 +1,5 @@
 %% see https://slacsmurf.slack.com/archives/C8ANUFAAU/p1524844499000354
-function frCfg=fluxRampSetup(desiredResetRatekHz, desiredFractionFullScale, acceptableDifferenceFromDesiredFractionFullScale, doRead)
+function [frCfg,fractionFullScale] =fluxRampSetup(desiredResetRatekHz, desiredFractionFullScale, acceptableDifferenceFromDesiredFractionFullScale, doRead)
 
 stepSizesToTry=1:10;
 
@@ -145,7 +145,9 @@ lcaPut( [rtmRootPath, 'DebounceWidth'],  num2str(255)); % 0xff
 %% set C_RtmSpiSr
 lcaPut( [rtmSpiRootPath, 'RampSlope'],  num2str(0));
 lcaPut( [rtmSpiRootPath, 'ModeControl'],  num2str(0));
-lcaPut( [rtmSpiRootPath, 'FastSlowStepSize'],  num2str(FastSlowStepSize));
+%lcaPut( [rtmSpiRootPath, 'FastSlowStepSize'],  num2str(FastSlowStepSize));
+%% new RTM
+lcaPut( [rtmSpiRootPath, 'FastSlowStepSize'],  num2str(FastSlowStepSize*2^4));
 
 %
 %FastSlowRstValue = 2^16 bit unsigned, offset binary
@@ -154,7 +156,9 @@ lcaPut( [rtmSpiRootPath, 'FastSlowStepSize'],  num2str(FastSlowStepSize));
 %        32767 -> 0
 %        65535 -> postive full scale
 %
-lcaPut( [rtmSpiRootPath, 'FastSlowRstValue'],  num2str(FastSlowRstValue));
+%lcaPut( [rtmSpiRootPath, 'FastSlowRstValue'],  num2str(FastSlowRstValue));
+%% new RTM
+lcaPut( [rtmSpiRootPath, 'FastSlowRstValue'],  num2str(FastSlowRstValue*2^4));
 
 %% Set EnableRampTrigger last; there's a bug in the firmware right now
 lcaPut( [rtmRootPath, 'EnableRampTrigger'],  num2str(1));
