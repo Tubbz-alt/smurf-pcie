@@ -1,22 +1,18 @@
-function [resp, f] = fastEtaScan(band, freqs, Nread, dwell, Adrive, baseNumber)
+function [resp, f] = fastEtaScan(band, subband, freqs, Nread, dwell, Adrive)
 % Faster version of etaScan based on PVs Mitch added to pyrogue
 % Can't implement until we've worked some bugs out of new pyrogue...
 % SWH 21Mar2018
   
-if nargin <3 
+if nargin <4
     Nread = 2; % default number of reads per frequnecy setting
 end; 
 
-if nargin <4 
+if nargin <5 
     dwell = 0.001; %dwell time default is 1 ms
 end; 
 
-if nargin <5 
-    Adrive = 10;
-end; 
-
 if nargin <6 
-    baseNumber = 0;
+    Adrive = 10;
 end; 
 
 f=repelem(freqs,Nread);
@@ -26,15 +22,15 @@ f=repelem(freqs,Nread);
 %end
 %%
 
-baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)];
+baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
 numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
 numberChannels=lcaGet([baseRootPath,'numberChannels']);
 
-%subchan = (numberChannels/numberSubBands)*band;
+%subchan = (numberChannels/numberSubBands)*subband;
 channelOrder=getChannelOrder;
 channelsPerSubBand=(numberChannels/numberSubBands);
 firstChannelInEachSubBand=channelOrder(1:channelsPerSubBand:end);
-subchan=firstChannelInEachSubBand(band+1);
+subchan=firstChannelInEachSubBand(subband+1);
 
 cryoChannelsRootPath = [baseRootPath,'CryoChannels:'];
 lcaPut([cryoChannelsRootPath,'etaScanFreqs'],f);
@@ -80,10 +76,12 @@ end
 I = I/2^23;
 Q = Q/2^23;
 
+
 resp = I + 1i*Q;    %form complex response
 
+
 Adrive = 0; % turn channel OFF
-configCryoChannel( baseNumber, subchan, freqs(ceil(end/2)), Adrive, 0, 0, 0 ) ;
+configCryoChannel( band, subchan, freqs(ceil(end/2)), Adrive, 0, 0, 0 ) ;
 
 end
 % end of function etaScan2
