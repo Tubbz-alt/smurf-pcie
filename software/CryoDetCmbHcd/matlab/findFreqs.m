@@ -1,37 +1,42 @@
 %% TO DO: NEED TO SAVE CFG SO WE CAN RELOAD FOR OFFLINE DATA
-function res=findFreqs(baseNumberOrOfflineDataCtime);
-    
+function resOutFileName=findFreqs(bandOrOfflineDataCtime,Adrive);
+
     tooCloseCutoffFrequencyMHz=0.2;
 
     isOffline=false;
     if nargin<1
-        baseNumber=0;
-    elseif isstring(baseNumberOrOfflineDataCtime) || ischar(baseNumberOrOfflineDataCtime)
+        band=2;
+    elseif isstring(bandOrOfflineDataCtime) || ischar(bandOrOfflineDataCtime)
         isOffline=true;
-        offlineDataCtime=baseNumberOrOfflineDataCtime;
+        offlineDataCtime=bandOrOfflineDataCtime;
         %% hard-coded for now, but need to save configuration data and load it instead for offline data 
-        baseNumber=0;
+        band=0;
     else
-        baseNumber=baseNumberOrOfflineDataCtime;
+        band=bandOrOfflineDataCtime;
+    end
+    Off(band);
+    
+    if nargin<2
+        Adrive=10;
     end
     
     %% tries to find all of the resonators
     
     % System has 8 500MHz bands, centered on 8 different frequencies.
     % All of our testing so far has been on the band centered at 5.25GHz.
-    rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)]
+    rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)]
     
     bandCenterMHz = lcaGet([rootPath,'bandCenterMHz']);
     numberSubBands=lcaGet([rootPath,'numberSubBands']);
-    ctime=ctimeForFile;
-    Adrive=10;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-    %bands=[0+10,127-10];
-    bands=[0:127];
+    ctime=ctimeForFile;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+    %subBands=[0+10,127-10];
+    %subbands=[12:114];
+    subbands=[63];
     
     if ~isOffline
         % sweep all bands
         Nread=2;
-        [f,resp]=fullBandAmplSweep(bands,Adrive,baseNumber,3);
+        [f,resp]=fullBandAmplSweep(band,subbands,Adrive,Nread);
     else
         % load data from saved data by ctime
         path2data='/home/common/data/cpu-b000-hp01/cryo_data/data2/';
@@ -50,15 +55,15 @@ function res=findFreqs(baseNumberOrOfflineDataCtime);
         sweepDataFilename=dfn;
         
         % overwrite bands to include all bands with a nonzero response
-        bands={};
-        for band=0:numberSubBands-1
-            if any(abs(resp(band+1,:)))
-                bands=[bands, band];
+        subbands={};
+        for subband=0:numberSubBands-1
+            if any(abs(resp(subband+1,:)))
+                subbands=[subbands, subband];
             end
         end
-        %bands=horzcat(bands{:});
-        bands=[0:127];
-        %bands=[117,118];
+        %subbands=horzcat(bands{:});
+        subbands=[0:127];
+        %subbands=[117,118];
     end
         
     % plot
@@ -68,9 +73,9 @@ function res=findFreqs(baseNumberOrOfflineDataCtime);
     ylabel('Amplitude (normalized)')
     title(sprintf('%d sub-band response',numberSubBands))
     
-    for band=0:numberSubBands-1
-        disp(['Plotting band ' num2str(band)])
-        plot(f(band+1,:), abs(resp(band+1,:)), '.', 'color', rand(1,3))
+    for subband=0:numberSubBands-1
+        disp(['Plotting sub-band ' num2str(subband)])
+        plot(f(subband+1,:), abs(resp(subband+1,:)), '.', 'color', rand(1,3))
         grid on;
     end
     
@@ -104,7 +109,7 @@ function res=findFreqs(baseNumberOrOfflineDataCtime);
     else
         plotsaveprefix='';
     end
-    res=findAllPeaks(sweepDataFilename,bands,plotsaveprefix);
+    res=findAllPeaks(sweepDataFilename,subbands,plotsaveprefix);
     res = res + bandCenterMHz;
     res = sort(res);
     
@@ -117,14 +122,14 @@ function res=findFreqs(baseNumberOrOfflineDataCtime);
     disp(sprintf('nres = %d',length(res)));
     
     % save resonators to file as list, by band and Foff
-    tone_bands=zeros(1,length(res)); tone_Foffs=zeros(1,length(res));
+    tone_subbands=zeros(1,length(res)); tone_Foffs=zeros(1,length(res));
     for r=1:length(res)
-        [tone_bands(r), tone_Foffs(r)] = f2band(res(r),baseNumber);
+        [tone_subbands(r), tone_Foffs(r)] = f2band(res(r),band);
     end
     
     if ~isOffline
         % bands are interleaved, so let's sort results by frequency, not band
-        results=horzcat(tone_bands',tone_Foffs',res');
+        results=horzcat(tone_subbands',tone_Foffs',res');
         results = sortrows(results,3);
         
         resOutFileName = fullfile(resultsDir, [num2str(ctime), '.res']);
