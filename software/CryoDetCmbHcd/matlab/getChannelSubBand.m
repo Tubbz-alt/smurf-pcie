@@ -1,7 +1,12 @@
 function subBand=getChannelSubband(baseNumber,channel)
     baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)];
-    numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
-    numberChannels=lcaGet([baseRootPath,'numberChannels']);
+    try
+       numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
+       numberChannels=lcaGet([baseRootPath,'numberChannels']);
+    catch
+        numberSubBands=128;
+        numberChannels=512;
+    end
     channelsPerSubBand=(numberChannels/numberSubBands);
     
     if (channel+1)>numberChannels || channel<0
