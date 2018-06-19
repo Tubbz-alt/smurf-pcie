@@ -1,0 +1,274 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>smurf_setup.stage package &#8212; setup_smurf 1.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">setup_smurf 1.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="smurf-setup-stage-package">
+<h1>smurf_setup.stage package<a class="headerlink" href="#smurf-setup-stage-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-smurf_setup.stage.dummystage">
+<span id="smurf-setup-stage-dummystage-module"></span><h2>smurf_setup.stage.dummystage module<a class="headerlink" href="#module-smurf_setup.stage.dummystage" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="smurf_setup.stage.dummystage.DummyStage">
+<em class="property">class </em><code class="descclassname">smurf_setup.stage.dummystage.</code><code class="descname">DummyStage</code><span class="sig-paren">(</span><em>tuning</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/dummystage.html#DummyStage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.dummystage.DummyStage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#smurf_setup.stage.tuningstage.SmurfStage" title="smurf_setup.stage.tuningstage.SmurfStage"><code class="xref py py-class docutils literal"><span class="pre">smurf_setup.stage.tuningstage.SmurfStage</span></code></a></p>
+<p>tuning stage for doing nothing</p>
+<dl class="method">
+<dt id="smurf_setup.stage.dummystage.DummyStage.analyze">
+<code class="descname">analyze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/dummystage.html#DummyStage.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.dummystage.DummyStage.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>analyze/plot whatever information comes out, as desired</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.dummystage.DummyStage.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/dummystage.html#DummyStage.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.dummystage.DummyStage.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>clean up</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.dummystage.DummyStage.prepare">
+<code class="descname">prepare</code><span class="sig-paren">(</span><em>previous_stage_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/dummystage.html#DummyStage.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.dummystage.DummyStage.prepare" title="Permalink to this definition">¶</a></dt>
+<dd><p>prepare for this stage. In a real stage, possibly reads in a file
+from a previous stage and uses that information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.dummystage.DummyStage.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/dummystage.html#DummyStage.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.dummystage.DummyStage.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>run the stage</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-smurf_setup.stage.etascan">
+<span id="smurf-setup-stage-etascan-module"></span><h2>smurf_setup.stage.etascan module<a class="headerlink" href="#module-smurf_setup.stage.etascan" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="smurf_setup.stage.etascan.estimate_params">
+<code class="descclassname">smurf_setup.stage.etascan.</code><code class="descname">estimate_params</code><span class="sig-paren">(</span><em>smurfStageCfg</em>, <em>response</em>, <em>freqs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#estimate_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.estimate_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>estimate eta parameters from a set of scanned frequencies</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>smurfStageCfg (config) : stage specific piece of a smurfCfg object
+response (list?): response (I + i*Q) from eta scan
+freqs (list): frequencies scanned. same length as response.</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="smurf_setup.stage.etascan.etaParams">
+<em class="property">class </em><code class="descclassname">smurf_setup.stage.etascan.</code><code class="descname">etaParams</code><span class="sig-paren">(</span><em>tuning</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#etaParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.etaParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#smurf_setup.stage.tuningstage.SmurfStage" title="smurf_setup.stage.tuningstage.SmurfStage"><code class="xref py py-class docutils literal"><span class="pre">smurf_setup.stage.tuningstage.SmurfStage</span></code></a></p>
+<p>class to tune the eta parameters. Inherits from the more generic tuning
+stage class</p>
+<dl class="method">
+<dt id="smurf_setup.stage.etascan.etaParams.analyze">
+<code class="descname">analyze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#etaParams.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.etaParams.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>make &amp; save some plots and stuff</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.etascan.etaParams.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#etaParams.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.etaParams.clean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.etascan.etaParams.prepare">
+<code class="descname">prepare</code><span class="sig-paren">(</span><em>resfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#etaParams.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.etaParams.prepare" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>prepare system to scan for eta parameters by reading in resonance</dt>
+<dd>locations</dd>
+<dt>Args:</dt>
+<dd>resfile (str): optional path resonance locations
+If none supplied, then most recent _resloc file is used</dd>
+<dt>Outputs:</dt>
+<dd>freqs (list): list of frequency locations</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.etascan.etaParams.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#etaParams.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.etaParams.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="smurf_setup.stage.etascan.eta_scan">
+<code class="descclassname">smurf_setup.stage.etascan.</code><code class="descname">eta_scan</code><span class="sig-paren">(</span><em>epics_path</em>, <em>subchan</em>, <em>freqs</em>, <em>drive</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#eta_scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.eta_scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>scan a small range and get IQ response</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>epics_path (str): root path for epics commands for eta scanning
+subchan (int): subchannel to scan; should be n_subchan * subband_no
+freqs (list): frequencies to scan over
+drive (int): power at which to scan</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="smurf_setup.stage.etascan.on_change">
+<code class="descclassname">smurf_setup.stage.etascan.</code><code class="descname">on_change</code><span class="sig-paren">(</span><em>pvname=None</em>, <em>value=None</em>, <em>char_value=None</em>, <em>**kw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#on_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.on_change" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="smurf_setup.stage.etascan.subband_off">
+<code class="descclassname">smurf_setup.stage.etascan.</code><code class="descname">subband_off</code><span class="sig-paren">(</span><em>smurfCfg</em>, <em>subchan</em>, <em>freqs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/etascan.html#subband_off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.etascan.subband_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>turn off a single subband</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>smurfCfg (config object)
+subchan (int): channel number
+freqs (list): freqs to disable</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-smurf_setup.stage.tuningstage">
+<span id="smurf-setup-stage-tuningstage-module"></span><h2>smurf_setup.stage.tuningstage module<a class="headerlink" href="#module-smurf_setup.stage.tuningstage" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="smurf_setup.stage.tuningstage.SmurfStage">
+<em class="property">class </em><code class="descclassname">smurf_setup.stage.tuningstage.</code><code class="descname">SmurfStage</code><span class="sig-paren">(</span><em>tuning</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/tuningstage.html#SmurfStage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.tuningstage.SmurfStage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>initializes, runs, analyzes, and cleans up after a SMuRF tuning stage</p>
+<dl class="method">
+<dt id="smurf_setup.stage.tuningstage.SmurfStage.analyze">
+<code class="descname">analyze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/tuningstage.html#SmurfStage.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.tuningstage.SmurfStage.analyze" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.tuningstage.SmurfStage.cleanup">
+<code class="descname">cleanup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/tuningstage.html#SmurfStage.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.tuningstage.SmurfStage.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>turn everything off at the end of each stage</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.tuningstage.SmurfStage.prepare">
+<code class="descname">prepare</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/tuningstage.html#SmurfStage.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.tuningstage.SmurfStage.prepare" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.tuningstage.SmurfStage.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/tuningstage.html#SmurfStage.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.tuningstage.SmurfStage.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="smurf_setup.stage.tuningstage.SmurfStage.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>data</em>, <em>fileheader</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/smurf_setup/stage/tuningstage.html#SmurfStage.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smurf_setup.stage.tuningstage.SmurfStage.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>dump the data from a stage into a csv</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>data (np array-like) : np array-like object to write
+header (str) : desired header</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-smurf_setup.stage">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-smurf_setup.stage" title="Permalink to this headline">¶</a></h2>
+<p>tuning stages</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">smurf_setup.stage package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-smurf_setup.stage.dummystage">smurf_setup.stage.dummystage module</a></li>
+<li><a class="reference internal" href="#module-smurf_setup.stage.etascan">smurf_setup.stage.etascan module</a></li>
+<li><a class="reference internal" href="#module-smurf_setup.stage.tuningstage">smurf_setup.stage.tuningstage module</a></li>
+<li><a class="reference internal" href="#module-smurf_setup.stage">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/smurf_setup.stage.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">setup_smurf 1.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Shawn W. Henderson, Cyndia Yu, Sofia Fatigoni.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-function [eta, F0, latency, resp, f] = etaEstimator(band, freqs, Adrive, delF, doPlots)
+function [eta, F0, latency, resp, f, resonatorFit] = etaEstimator(band, subband, freqs, Adrive, delF, doPlots)
 %sweep frequencies in a band,
 % aquire complex repsonse vs frequency at dF block where eta is used
 % fit to dF/dS21 to estimate eta
@@ -6,15 +6,15 @@ function [eta, F0, latency, resp, f] = etaEstimator(band, freqs, Adrive, delF, d
 
 %SSmith 22 Nov 2017
 
-if nargin <3 
+if nargin <4 
     Adrive = 12; %default -6dB
 end; 
 
-if nargin <4 
+if nargin <5 
     delF = 0.05; %default 50kHz
 end; 
 
-if nargin <5
+if nargin <6
     doPlots=true;
 end; 
 
@@ -25,8 +25,28 @@ eta = 0;
 F0 = 0; 
 latency = 0;
 
-%dwell = 0.07; [resp, f] = etaScan(band, freqs, Nread, dwell, Adrive);
-dwell = 0.0; [resp, f] = fastEtaScan(band, freqs, Nread, dwell, Adrive);
+%dwell = 0.07; [resp, f] = etaScan(subband, freqs, Nread, dwell, Adrive);
+dwell = 0.0; [resp, f] = fastEtaScan(band, subband, freqs, Nread, dwell, Adrive);
+
+%%% should only fit near resonator center??, error within delF
+% respToFit = eta*resp(left:right); 
+%%% or fit entire scan
+respToFit = resp;
+[Icenter, Qcenter, R, error] = fitResonator(real(respToFit), imag(respToFit));
+disp(['I center ', num2str(Icenter)])
+disp(['Q center ', num2str(Qcenter)])
+disp(['Radius '  , num2str(R)])
+resonatorFit.Icenter = Icenter;
+resonatorFit.Qcenter = Qcenter;
+resonatorFit.R       = R;
+resonatorFit.error   = error;
+
+
+x        = 0:0.05:2*pi;
+Ifit     = R*cos(x)+Icenter;
+Qfit     = R*sin(x)+Qcenter;
+circ     = Ifit +1i*Qfit;
+
 
 a = abs(resp); idx = find(a==min(a),1);
 F0 = f(idx) %center frequency in MHz
@@ -40,17 +60,20 @@ if doPlots
     plot(f, a, '.');grid
     hold on
     plot(f(idx), a(idx), 'r*');
-    title(['Amplitude Response for Band ' num2str(band)])
+    title(['Amplitude Response for ' num2str(band) '/' num2str(subband)],'FontSize',10)
     xlabel('Frequency (MHz)')
     ylabel('Response (arbs)')
     ax = axis; xt = ax(1)+0.1*(ax(2)-ax(1)); 
     yt=  ax(3) + 0.1*(ax(4)-ax(3));
-    text(xt, yt,['Band Center = ', num2str(band*38.4), ' MHz'])
+    
+    [subBands,subBandCenters]=getSubBandCenters(band);
+    subBandCenter=subBandCenters(find(subBands==subband));
+    text(xt, yt,['Sub-Band Center = ', num2str(subBandCenter), ' MHz'],'FontSize',8)
  
     netPhase = unwrap(angle(resp));
     %figure(2); 
     subplot(2,2,2), plot(f, netPhase, '.');grid
-    title(['Phase Response for Band ' num2str(band)])
+    title(['Phase Response for ' num2str(band) '/' num2str(subband)],'FontSize',10)
     xlabel('Frequency (MHz)')
     ylabel('Phase')
     Nf = length(f);
@@ -69,26 +92,56 @@ if doPlots
     plot(resp(idx),'r*')
     plot(resp(left), 'gx')
     plot(resp(right), 'g+')
-    title(['Complex Response for Band ' num2str(band)])
+    title(['Complex Response for ' num2str(band) '/' num2str(subband)],'FontSize',10)
+    
+    plot(circ,'.k')
 
     hold off
     pbaspect([1 1 1])
     %axis([-0.25 0.25 -0.25 0.25])
 end
 
+baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
+digitizerFrequencyMHz=lcaGet([baseRootPath,'digitizerFrequencyMHz']);
+numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
+subBandHalfWidthMHz=(digitizerFrequencyMHz/numberSubBands);
+
 %estimate eta
 eta = (f(right)-f(left))/(resp(right)-resp(left))
 etaMag = abs(eta);   %magnitude in MHz per unit response
 etaPhase = angle(eta);
 etaPhaseDeg = angle(eta)*180/pi
-etaScaled = etaMag/19.2
+etaScaled = etaMag/subBandHalfWidthMHz
+
+%estimate eta via rotate/scale resonator circle
+% desiredR = 0.035;
+% desiredI = 0;
+% etaMag   = desiredR/R;
+% center   = Icenter + 1i*Qcenter;
+% etaPhase = angle(center) + pi/2; % for some reason we are setting Icenter = 0, Q < 0 - possible IQ swap between matlab and FW
+% eta = etaMag*exp(-1i*etaPhase);
+% % eta = (f(right)-f(left))/(resp(right)-resp(left))
+% % etaMag = abs(eta);   %magnitude in MHz per unit response
+% % etaPhase = angle(eta);
+% etaPhaseDeg = angle(eta)*180/pi
+% etaScaled = etaMag/subBandHalfWidthMHz
+
+
 
 if doPlots
+
     %figure(4)
     subplot(2,2,4), plot(resp*eta, '.'), grid, hold on
     plot(eta*resp(idx),'r*')
     plot(eta*resp(right), 'g+')
     plot(eta*resp(left), 'gx')
+
+
+    
+
+    
+    plot(circ*eta, 'k.')
+
     
     pbaspect([1 1 1])
     %axis([-0.25 0.25 -0.25 0.25])
@@ -104,7 +157,9 @@ end
 function [resp, f] = etaScan(band, freqs, Nread, dwell, Adrive)
 % Sweep frequency, plot complex response at input to dF calculation
 % band selects one of 32 sub bands (0:31  allowed)
-% freqs is a vector of frequencies in the range -19.2 (MHz) to + 19.2 (MHz)
+% freqs is a vector of frequencies in the range 
+% - digitizerFrequencyMHz/numberSubBands (MHz) to 
+% + digitizerFrequencyMHz/numberSubBands (MHz)
 
 % resp is complex response demodulated response
 % Nread (optional) number of reads of response per frequency setting
@@ -114,7 +169,7 @@ function [resp, f] = etaScan(band, freqs, Nread, dwell, Adrive)
 %   +9.6 MHz in steps of 100kHz
 % SS 20Nov2017
 
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
+rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 
 if nargin <3 
     Nread = 2; % default number of reads per frequnecy setting
@@ -146,8 +201,12 @@ if band <0 | band > 31
     return
 end
 
-if min(freqs) < -19.2  |  max(freqs) > 19.2
-    display('frequencies must be in range +-19.2 MHz')
+baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
+digitizerFrequencyMHz=lcaGet([baseRootPath,'digitizerFrequencyMHz']);
+numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
+subBandHalfWidthMHz=(digitizerFrequencyMHz/numberSubBands);
+if min(freqs) < -subBandHalfWidthMHz  |  max(freqs) > subBandHalfWidthMHz
+    display(sprintf('frequencies must be in range +-%0.2f MHz',subBandHalfWidthMHz))
     return
 end
 

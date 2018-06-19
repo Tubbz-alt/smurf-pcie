@@ -1,16 +1,18 @@
-function [resp, f] = fastEtaScan(band, freqs, Nread, dwell, Adrive)
+function [resp, f] = fastEtaScan(band, subband, freqs, Nread, dwell, Adrive)
 % Faster version of etaScan based on PVs Mitch added to pyrogue
 % Can't implement until we've worked some bugs out of new pyrogue...
 % SWH 21Mar2018
-
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:CryoChannels:';
-
-if nargin <3 
+  
+if nargin <4
     Nread = 2; % default number of reads per frequnecy setting
 end; 
 
-if nargin <4 
+if nargin <5 
     dwell = 0.001; %dwell time default is 1 ms
+end; 
+
+if nargin <6 
+    Adrive = 10;
 end; 
 
 f=repelem(freqs,Nread);
@@ -20,20 +22,30 @@ f=repelem(freqs,Nread);
 %end
 %%
 
-subchan = 16*band;
-lcaPut([rootPath,'etaScanFreqs'],f);
-lcaPut([rootPath,'etaScanAmplitude'],Adrive);
-lcaPut([rootPath,'etaScanChannel'],subchan);
-lcaPut([rootPath,'etaScanDwell'],0);
+baseRootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
+numberSubBands=lcaGet([baseRootPath,'numberSubBands']);
+numberChannels=lcaGet([baseRootPath,'numberChannels']);
+
+%subchan = (numberChannels/numberSubBands)*subband;
+channelOrder=getChannelOrder;
+channelsPerSubBand=(numberChannels/numberSubBands);
+firstChannelInEachSubBand=channelOrder(1:channelsPerSubBand:end);
+subchan=firstChannelInEachSubBand(subband+1);
+
+cryoChannelsRootPath = [baseRootPath,'CryoChannels:'];
+lcaPut([cryoChannelsRootPath,'etaScanFreqs'],f);
+lcaPut([cryoChannelsRootPath,'etaScanAmplitude'],Adrive);
+lcaPut([cryoChannelsRootPath,'etaScanChannel'],subchan);
+lcaPut([cryoChannelsRootPath,'etaScanDwell'],0);
 
 % results PVs
-resultsRealPV=[rootPath,'etaScanResultsReal'];
-resultsImagPV=[rootPath,'etaScanResultsImag'];
+resultsRealPV=[cryoChannelsRootPath,'etaScanResultsReal'];
+resultsImagPV=[cryoChannelsRootPath,'etaScanResultsImag'];
 pvs{1,1} = resultsRealPV;
 pvs{2,1} = resultsImagPV;
 
 % run the etaScan
-lcaPutNoWait([rootPath,'runEtaScan'],1);
+lcaPutNoWait([cryoChannelsRootPath,'runEtaScan'],1);
 
 % set monitors on result PVs
 lcaSetMonitor(pvs);
@@ -64,11 +76,12 @@ end
 I = I/2^23;
 Q = Q/2^23;
 
+
 resp = I + 1i*Q;    %form complex response
 
+
 Adrive = 0; % turn channel OFF
-rootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
-configCryoChannel( rootPath, subchan, freqs(ceil(end/2)), Adrive, 0, 0, 0 ) ;
+configCryoChannel( band, subchan, freqs(ceil(end/2)), Adrive, 0, 0, 0 ) ;
 
 end
 % end of function etaScan2

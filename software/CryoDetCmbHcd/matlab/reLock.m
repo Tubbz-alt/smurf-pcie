@@ -1,9 +1,14 @@
-function reLock(chans)
-    rootPath='mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:';
-    [status,cmdout]=system('readlink /data/cpu-b000-hp01/cryo_data/data2/current_eta');
-    etaIn=load(deblank(cmdout));
+function reLock(band,etaScanDir,chans)
+    rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
     
-    if nargin < 1
+    if nargin < 2
+        [status,cmdout]=system('readlink /data/cpu-b000-hp01/cryo_data/data2/current_eta');
+        etaIn=load(deblank(cmdout));
+    else
+        etaIn=load(fullfile(etaScanDir,[fileNameFromPath(etaScanDir),'_etaOut.mat']));
+    end
+    
+    if nargin < 3
         % index of channel in etaOut array is +1 the channel
         chans=find(~cellfun(@isempty,{etaIn.etaOut.chan}));
     else
@@ -12,8 +17,11 @@ function reLock(chans)
         chans=chans+1;
     end
     
+    fitErrorThreshold = 1e-4;
+    
     digitizerFrequencyMHz = lcaGet([rootPath,'digitizerFrequencyMHz']);
     numberSubBands = lcaGet([rootPath,'numberSubBands']);
+    numberChannels = lcaGet([rootPath,'numberChannels']);
     sub_band = digitizerFrequencyMHz./(numberSubBands/2); % oversample by 2
     
     disp(['digitizerFrequencyMHz=',num2str(digitizerFrequencyMHz)]);
@@ -22,12 +30,11 @@ function reLock(chans)
     % faster, uses array writes
     pvRoot = [rootPath, 'CryoChannels:'];
     % at least for now, defaults are all zeros
-    nArray=512;
-    amplitudeScaleArray = zeros(1,nArray);
-    centerFrequencyArray = zeros(1,nArray);
-    feedbackEnableArray = zeros(1,nArray);
-    etaPhaseArray = zeros(1,nArray);
-    etaMagArray = zeros(1,nArray);
+    amplitudeScaleArray = zeros(1,numberChannels);
+    centerFrequencyArray = zeros(1,numberChannels);
+    feedbackEnableArray = zeros(1,numberChannels);
+    etaPhaseArray = zeros(1,numberChannels);
+    etaMagArray = zeros(1,numberChannels);
     
     % populate arrays
     for ii=chans
@@ -41,10 +48,16 @@ function reLock(chans)
             freq = frequency_mhz;
         end
         centerFrequencyArray(ii)=freq;
-        
-        amplitudeScaleArray(ii)=etaIn.etaCfg.('Adrive');
-        feedbackEnableArray(ii)=1;
-        
+%% CHECK THIS        
+        %if etaIn.etaOut(ii).('error') > fitErrorThreshold
+        if 0
+            amplitudeScaleArray(ii)=0;
+            feedbackEnableArray(ii)=0;
+        else
+            amplitudeScaleArray(ii)=etaIn.etaCfg.('Adrive');
+            feedbackEnableArray(ii)=1;
+        end
+%%
         % phase, wrap to +/- 180
         phase = etaIn.etaOut(ii).('etaPhaseDeg');
         while( phase > 180 )

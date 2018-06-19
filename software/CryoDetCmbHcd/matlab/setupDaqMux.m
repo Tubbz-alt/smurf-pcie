@@ -13,8 +13,10 @@
 %    channel        - adc/dac channel argument
 %    dataLength     - dataLength
 
-function setupDaqMux( rootPath, type, varargin )
+function setupDaqMux( band, type, varargin )
     global DMBufferSizePV
+    
+    rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)]
     
     numvarargs = length( varargin );
     optargs = {0, 2^19};
@@ -39,13 +41,21 @@ function setupDaqMux( rootPath, type, varargin )
             daqMuxChannel0 = (channel+1)*2 + 10;
             daqMuxChannel1 = daqMuxChannel0 + 1;
         otherwise % catch debug and errors
-            daqMuxChannel0 = 22; % +22 to set debug stream
-            daqMuxChannel1 = 23;
-            dataType = 'unsigned 32-bit';
+            if band==2
+                daqMuxChannel0 = 22; % +22 to set debug stream
+                daqMuxChannel1 = 23;
+                dataType = 'unsigned 32-bit';
+            elseif band==3
+                daqMuxChannel0 = 24; % +22 to set debug stream
+                daqMuxChannel1 = 25;
+                dataType = 'unsigned 32-bit';
+            else
+                error(sprintf('!!! Debug stream not yet routed for this band=%d !!!',band));
+            end
     end   
 
     setBufferSize(dataLength)
-    
+
     lcaPut([root,':AMCc:FpgaTopLevel:AppTop:DaqMuxV2[0]:InputMuxSel[0]'], daqMuxChannel0)
     lcaPut([root,':AMCc:FpgaTopLevel:AppTop:DaqMuxV2[0]:InputMuxSel[1]'], daqMuxChannel1)
 %     lcaPut([root,':AMCc:StreamDataFormat0'], dataType)
