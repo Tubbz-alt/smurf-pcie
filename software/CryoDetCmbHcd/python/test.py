@@ -2,7 +2,7 @@
 
 import epics
 import smurf_setup.util.cryochannel as cc
-cc.all_off('mitch_epics:')
+cc.all_off('mitch_epics:', [2])
 
 ##
 

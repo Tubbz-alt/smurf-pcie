@@ -5,8 +5,8 @@ from math import floor
 """Epics wrappers for working with single cryo channel
 """
 
-SysgenCryo = "AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[2]:"
-CryoChannels = SysgenCryo + "CryoChannels:"
+SysgenCryo = "AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:"
+CryoChannels = "CryoChannels:"
 
 
 
@@ -26,11 +26,13 @@ def config_cryo_channel(smurfCfg, channelNo, frequencyMhz, ampl, \
 
     # construct the pvRoot
     smurfInitCfg = smurfCfg.get('init')
+    bandNo = smurfInitCfg['bands']
+    base = "Base[%i]:" % bandNo[0] # this only works for single band
     root = smurfInitCfg['epics_root'] + ":"
-    epicsRoot = root + CryoChannels + 'CryoChannel[%i]:' % channelNo
+    epicsRoot = root + SysgenCryo + base + CryoChannels + 'CryoChannel[%i]:' % channelNo
 
-    n_subband = epics.caget(root + SysgenCryo + 'numberSubBands') # should be 32
-    band = epics.caget(root + SysgenCryo + 'digitizerFrequencyMHz') # 614.4 MHz
+    n_subband = epics.caget(root + SysgenCryo + base + 'numberSubBands') # should be 32
+    band = epics.caget(root + SysgenCryo + base + 'digitizerFrequencyMHz') # 614.4 MHz
     sub_band = band / (n_subband/2) # width of each subband
 
     ## some checks to make sure we put in values within the correct ranges
@@ -68,15 +70,17 @@ def config_cryo_channel(smurfCfg, channelNo, frequencyMhz, ampl, \
         epics.caput(epicsRoot + pv_list[i], pv_values[i])
 
 
-def all_off(root):
+def all_off(root, bands):
     """turn off all the channels quickly (hooray!)
 
        Args:
         root (str): epics root (eg mitch_epics)
     """
-    epicsRoot = root + CryoChannels
-    epics.caput(epicsRoot + 'setAmplitudeScales', 0)
-    epics.caput(epicsRoot + 'feedbackEnableArray', np.zeros(512).astype(int))
+    for bandNo in bands:
+        base = 'Base[%i]:' % bandNo
+        epicsRoot = root + SysgenCryo + base + CryoChannels
+        epics.caput(epicsRoot + 'setAmplitudeScales', 0)
+        epics.caput(epicsRoot + 'feedbackEnableArray', np.zeros(512).astype(int))
 
 def freq_to_subband(freq, band_center, subband_order):
     """look up subband number of a channel frequency
