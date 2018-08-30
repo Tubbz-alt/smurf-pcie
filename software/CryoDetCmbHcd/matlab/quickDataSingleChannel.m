@@ -4,7 +4,7 @@ function [f,df,frs]=quickDataSingleChannel(band)
     system( ['rm ', dfn] );
     
     rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
-    takeDebugData(band,dfn,2^16);
+    takeDebugData(band,dfn,2^22);
     
     [f, df, frs] = decodeSingleChannel(dfn);
     %[f,df,frs]=decodeData(dfn);
