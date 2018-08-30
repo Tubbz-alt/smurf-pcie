@@ -51,42 +51,65 @@ end
 
 resetRate        = (dspClockFrequencyMHz*10^6)/(RampMaxCnt + 1);
 
+HighCycle = 5;
+LowCycle = 5;
+rtmClock = (dspClockFrequencyMHz*10^6)/(HighCycle + LowCycle + 2);
+trialRTMClock = rtmClock;
+
+fullScaleRate         = desiredFractionFullScale*resetRate;
+desFastSlowStepSize   = (fullScaleRate*2^20)/rtmClock
+trialFastSlowStepSize = round(desFastSlowStepSize)
+FastSlowStepSize      = trialFastSlowStepSize;
+
+
+trialFullScaleRate    = trialFastSlowStepSize*trialRTMClock / (2^20);
+trialResetRate        = (dspClockFrequencyMHz*10^6)/(RampMaxCnt + 1);
+trialFractionFullScale = trialFullScaleRate/trialResetRate;
+fractionFullScale      = trialFractionFullScale;
+differenceFromDesiredFractionFullScale=abs(trialFractionFullScale-desiredFractionFullScale);
+
+
+
+            disp(sprintf('\tpercentFullScale = %0.1f%%',100.*fractionFullScale));
+
+
+
 % set RtmCryoDet.  Reset rate needs to be in sync with other clocks, 
 % that's controlled by RampMaxCnt; don't change that.  Adjust Nphi0/ramp
 % by changing the RTM clock (via LowCycle and HighCyle) and
 % FastSlowStepSize.
 %assumes HighCycle=LowCycle
 
-differenceFromDesiredFractionFullScale=Inf;
-fractionFullScale=Inf;
-for trialFastSlowStepSize=stepSizesToTry
-    desiredRTMClockFastSlowStepSizeProduct=desiredFractionFullScale*resetRate*2^16;
-    trialRTMClock=desiredRTMClockFastSlowStepSizeProduct/trialFastSlowStepSize;
-    trialCycles=floor((((dspClockFrequencyMHz*10^6)/trialRTMClock) - 2)/2);
-    %disp(sprintf('-> FastSlowStepSize=%g\ttrialCycles=%g',trialFastSlowStepSize,trialCycles));
-    
-    trialLowCycle=trialCycles;
-    trialHighCycle=trialCycles;    
-    trialRTMClock         = (dspClockFrequencyMHz*10^6)/(trialHighCycle + trialLowCycle + 2);
-    trialFullScaleRate    = trialFastSlowStepSize*trialRTMClock / (2^16);
-    trialResetRate        = (dspClockFrequencyMHz*10^6)/(RampMaxCnt + 1);
-    trialFractionFullScale = trialFullScaleRate/trialResetRate;
-
-    if trialLowCycle>1
-        if abs(trialFractionFullScale-desiredFractionFullScale)<differenceFromDesiredFractionFullScale
-            FastSlowStepSize=trialFastSlowStepSize;
-            LowCycle=trialCycles;
-            HighCycle=trialCycles;   
-            rtmClock = (dspClockFrequencyMHz*10^6)/(HighCycle + LowCycle + 2);
-            fullScaleRate    = FastSlowStepSize*rtmClock / (2^16);
-            resetRate        = (dspClockFrequencyMHz*10^6)/(RampMaxCnt + 1);
-            fractionFullScale = fullScaleRate/resetRate;
-            disp(sprintf('\tpercentFullScale = %0.1f%%',100.*fractionFullScale));
-    
-            differenceFromDesiredFractionFullScale=abs(trialFractionFullScale-desiredFractionFullScale);
-        end
-    end
-end
+% differenceFromDesiredFractionFullScale=Inf;
+% fractionFullScale=Inf;
+% for trialFastSlowStepSize=stepSizesToTry
+%     desiredRTMClockFastSlowStepSizeProduct=desiredFractionFullScale*resetRate*2^16;
+%     trialRTMClock=desiredRTMClockFastSlowStepSizeProduct/trialFastSlowStepSize;
+%     trialCycles=floor((((dspClockFrequencyMHz*10^6)/trialRTMClock) - 2)/2);
+%     %disp(sprintf('-> FastSlowStepSize=%g\ttrialCycles=%g',trialFastSlowStepSize,trialCycles));
+%     
+%     trialLowCycle=trialCycles;
+%     trialHighCycle=trialCycles;    
+%     trialRTMClock         = (dspClockFrequencyMHz*10^6)/(trialHighCycle + trialLowCycle + 2);
+%     trialFullScaleRate    = trialFastSlowStepSize*trialRTMClock / (2^16);
+%     trialResetRate        = (dspClockFrequencyMHz*10^6)/(RampMaxCnt + 1);
+%     trialFractionFullScale = trialFullScaleRate/trialResetRate;
+% 
+%     if trialLowCycle>1
+%         if abs(trialFractionFullScale-desiredFractionFullScale)<differenceFromDesiredFractionFullScale
+%             FastSlowStepSize=trialFastSlowStepSize;
+%             LowCycle=trialCycles;
+%             HighCycle=trialCycles;   
+%             rtmClock = (dspClockFrequencyMHz*10^6)/(HighCycle + LowCycle + 2);
+%             fullScaleRate    = FastSlowStepSize*rtmClock / (2^16);
+%             resetRate        = (dspClockFrequencyMHz*10^6)/(RampMaxCnt + 1);
+%             fractionFullScale = fullScaleRate/resetRate;
+%             disp(sprintf('\tpercentFullScale = %0.1f%%',100.*fractionFullScale));
+%     
+%             differenceFromDesiredFractionFullScale=abs(trialFractionFullScale-desiredFractionFullScale);
+%         end
+%     end
+% end
 
 if ~(differenceFromDesiredFractionFullScale<acceptableDifferenceFromDesiredFractionFullScale)
     error(sprintf('!!! Aborting; too far from desired fractional full scale, fractionFullScale=%0.2f%%.',100.*fractionFullScale));
@@ -102,7 +125,7 @@ if rtmClock<2*10^6
 end
 
 % no DC offset
-FastSlowRstValue = floor((2^16)*(1-fractionFullScale)/2);
+FastSlowRstValue = floor((2^20)*(1-fractionFullScale)/2);
 
 disp(sprintf('LowCycle = %d',LowCycle));
 disp(sprintf('HighCycle = %d',HighCycle));
@@ -147,7 +170,7 @@ lcaPut( [rtmSpiRootPath, 'RampSlope'],  num2str(0));
 lcaPut( [rtmSpiRootPath, 'ModeControl'],  num2str(0));
 %lcaPut( [rtmSpiRootPath, 'FastSlowStepSize'],  num2str(FastSlowStepSize));
 %% new RTM
-lcaPut( [rtmSpiRootPath, 'FastSlowStepSize'],  num2str(FastSlowStepSize*2^4));
+lcaPut( [rtmSpiRootPath, 'FastSlowStepSize'],  num2str(FastSlowStepSize));
 
 %
 %FastSlowRstValue = 2^16 bit unsigned, offset binary
@@ -158,7 +181,7 @@ lcaPut( [rtmSpiRootPath, 'FastSlowStepSize'],  num2str(FastSlowStepSize*2^4));
 %
 %lcaPut( [rtmSpiRootPath, 'FastSlowRstValue'],  num2str(FastSlowRstValue));
 %% new RTM
-lcaPut( [rtmSpiRootPath, 'FastSlowRstValue'],  num2str(FastSlowRstValue*2^4));
+lcaPut( [rtmSpiRootPath, 'FastSlowRstValue'],  num2str(FastSlowRstValue));
 
 %% Set EnableRampTrigger last; there's a bug in the firmware right now
 lcaPut( [rtmRootPath, 'EnableRampTrigger'],  num2str(1));
