@@ -1,9 +1,14 @@
-function lockedChannels=checkLock(baseNumber,chans)
+function lockedChannels=checkLock(baseNumber,etaScanDir,chans)
     rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',baseNumber)];
-    [status,cmdout]=system('readlink /data/cpu-b000-hp01/cryo_data/data2/current_eta');
-    etaIn=load(deblank(cmdout));
     
     if nargin < 2
+        [status,cmdout]=system('readlink /data/cpu-b000-hp01/cryo_data/data2/current_eta_mitch_epics');
+        etaIn=load(deblank(cmdout));
+    else
+        etaIn=load(fullfile(etaScanDir,[fileNameFromPath(etaScanDir),'mitch_epics_etaOut.mat']));
+    end
+    
+    if nargin < 3
         % index of channel in etaOut array is +1 the channel
         chans=find(~cellfun(@isempty,{etaIn.etaOut.chan}));
     else
@@ -23,13 +28,7 @@ function lockedChannels=checkLock(baseNumber,chans)
     lcaPut([rootPath 'iqStreamEnable'],0);
 
     % take a short dumb dataset
-    dfn='/tmp/tmp2.dat';
-    system( ['rm ', dfn] );
-
-    takeDebugData(rootPath,dfn,2^20);
-
-    %[f, df, frs] = decodeSingleChannel(dfn, 0);
-    [f,df,frs]=decodeData(dfn);
+    [f, df, frs] = quickData(baseNumber, 2^20);
     
     %[f,df,frs]=getData(rootPath,2^18);
     % only loop over defined channels
@@ -42,7 +41,7 @@ function lockedChannels=checkLock(baseNumber,chans)
         chan=etaIn.etaOut(ii).('chan');
         fchan=f(:,ii);
         % retrieve current channel configuration
-        [centerFrequencyMHz, amplitudeScale, feedbackEnable, etaPhaseDegree, etaMagScaled] = getCryoChannelConfig(rootPath,chan);
+        [centerFrequencyMHz, amplitudeScale, feedbackEnable, etaPhaseDegree, etaMagScaled] = getCryoChannelConfig(baseNumber,chan);
         
         if amplitudeScale==0 && feedbackEnable==0
             % channel already disabled; do nothing
