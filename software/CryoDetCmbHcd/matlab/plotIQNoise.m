@@ -1,17 +1,18 @@
 function [cfg,phase,amp,t,f,pArtHz]=plotIQNoise(fname,path2data)
 
     if nargin<2
-        path2data='/home/common/data/cpu-b000-hp01/cryo_data/data2/';
+        path2data='/home/common/data/cpu-b000-hp01/cryo_data/data2';
     end
 
     % need to find the file; that way we don't have to put the path above,
-    % which is annoying.
-    dfn_cands=glob(fullfile(path2data,'/*/',fname));
+%     which is annoying.
+    dfn_cands=glob(fullfile(path2data,'/*/',fname))
     % don't take the one that's in the soft-linked current_data directory
     dfnIdxC=strfind(dfn_cands,'/current_data/');
     dfnIdx=find(cellfun('isempty',dfnIdxC));
     dfn=dfn_cands(dfnIdx);
     dfn=dfn{1,1}; % not sure why this is necessary
+    %dfn = fullfile(path2data, fname)
     disp(['-> found ' dfn]);
     
     cfg = load(strrep(dfn,'.dat','.mat'));
