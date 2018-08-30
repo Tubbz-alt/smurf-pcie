@@ -2,10 +2,12 @@ function reLock(band,etaScanDir,chans)
     rootPath=[getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)];
     
     if nargin < 2
-        [status,cmdout]=system('readlink /data/cpu-b000-hp01/cryo_data/data2/current_eta');
+        
+        smurfRoot = getSMuRFenv('SMURF_EPICS_ROOT')
+        [status,cmdout]=system(sprintf('readlink /data/cpu-b000-hp01/cryo_data/data2/current_eta_%s',smurfRoot));
         etaIn=load(deblank(cmdout));
     else
-        etaIn=load(fullfile(etaScanDir,[fileNameFromPath(etaScanDir),'_etaOut.mat']));
+        etaIn=load(fullfile(etaScanDir,[fileNameFromPath(etaScanDir), getSMuRFenv('SMURF_EPICS_ROOT'), '_etaOut.mat']));
     end
     
     if nargin < 3
@@ -38,7 +40,7 @@ function reLock(band,etaScanDir,chans)
     
     % populate arrays
     for ii=chans
-        frequency_mhz=etaIn.etaOut(ii).('Foff');
+        frequency_mhz=etaIn.etaOut(ii).('F0'); % testing this CY
         % limit frequency to +/- sub-band/2
         if frequency_mhz > sub_band/2
             freq = sub_band/2;    
