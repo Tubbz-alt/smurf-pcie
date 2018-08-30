@@ -12,7 +12,7 @@
     loglog(f,pArtHz); hold on;
     xlabel('Frequency (Hz)','Interpreter','latex','FontSize',16);
     ylabel('Eq. TES Current Noise (pA/$\sqrt{\mathrm{Hz}}$)','Interpreter','latex','FontSize',16);
-    ylim([1,psd_median_in_subset*10]);
+    %ylim([1,psd_median_in_subset*10]);
     xmin=0.1;
     xmax=50000;
     xlim([xmin,xmax]);
@@ -23,5 +23,7 @@
     semilogx([xmin,xmax],[psd_median_in_subset,psd_median_in_subset],'--','color','red','LineWidth',2);
     xspan=xmax-xmin;
     text(xmin+xspan/10,psd_median_in_subset/3,sprintf('%0.1f pA/rtHz',psd_median_in_subset),'color','red');
+    
+    
     
     %title(sprintf('%s : %0.3f GHz, subband %d, channel %d',fname{1},F,band,cfg.readoutChannelSelect),'Interpreter','latex');
