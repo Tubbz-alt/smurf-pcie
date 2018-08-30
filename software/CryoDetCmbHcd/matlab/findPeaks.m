@@ -16,7 +16,7 @@ function fp = findPeaks(sweep,bandnum,plotsaveprefix)
     
     % peak finding threshold; doesn't take into account 
     % whether or not data is normalized before peak finding
-    threshold=0.45;
+    threshold=0.2;
     
     % other algorithm parmaeters I need to document
     fmarginfactor=5;
@@ -110,10 +110,15 @@ function fp = findPeaks(sweep,bandnum,plotsaveprefix)
             end
             fmargin=df*fmarginfactor;
             kk=find((freqs>pkfreqs(jj)+fmargin)&(freqs<pkfreqs(jj+1)-fmargin));
+            while isempty(kk)
+                fmargin = fmargin / 2;
+                kk=find((freqs>pkfreqs(jj)+fmargin)&(freqs<pkfreqs(jj+1)-fmargin));
+            end
             freqs_kk=freqs(kk);
             phase_kk=phase(kk);
             
             % estimate line slopes and intercepts
+            %pause
             [mts,bts]=tslineparams(freqs_kk,phase_kk);
             % plot
             if doplot
@@ -306,8 +311,8 @@ function [m,b] = tslineparams(x,y)
                 idx=idx+1;
         end
     end
-    m=median(slopes);
-    b=median(y-m*x);
+    m=median(slopes, 'omitnan');
+    b=median(y-m*x, 'omitnan');
     %disp(['m=' num2str(m)]);
     %disp(['b=' num2str(b)]);
 end
