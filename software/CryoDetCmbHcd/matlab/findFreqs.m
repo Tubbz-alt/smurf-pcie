@@ -1,5 +1,5 @@
 %% TO DO: NEED TO SAVE CFG SO WE CAN RELOAD FOR OFFLINE DATA
-function resOutFileName=findFreqs(bandOrOfflineDataCtime,Adrive);
+function resOutFileName=findFreqs(bandOrOfflineDataCtime,subbands,Adrive);
 
     tooCloseCutoffFrequencyMHz=0.2;
 
@@ -16,7 +16,13 @@ function resOutFileName=findFreqs(bandOrOfflineDataCtime,Adrive);
     end
     Off(band);
     
-    if nargin<2
+    if nargin < 2
+        %subBands=[0+10,127-10];
+        subbands=[12:114];
+        %subbands=[63];
+    end
+    
+    if nargin<3
         Adrive=10;
     end
     
@@ -25,13 +31,10 @@ function resOutFileName=findFreqs(bandOrOfflineDataCtime,Adrive);
     % System has 8 500MHz bands, centered on 8 different frequencies.
     % All of our testing so far has been on the band centered at 5.25GHz.
     rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),sprintf(':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[%d]:',band)]
-    
+    smurfRoot = getSMuRFenv('SMURF_EPICS_ROOT');    
     bandCenterMHz = lcaGet([rootPath,'bandCenterMHz']);
     numberSubBands=lcaGet([rootPath,'numberSubBands']);
-    ctime=ctimeForFile;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-    %subBands=[0+10,127-10];
-    %subbands=[12:114];
-    subbands=[63];
+    ctime=ctimeForFile;
     
     if ~isOffline
         % sweep all bands
@@ -75,7 +78,8 @@ function resOutFileName=findFreqs(bandOrOfflineDataCtime,Adrive);
     
     for subband=0:numberSubBands-1
         disp(['Plotting sub-band ' num2str(subband)])
-        plot(f(subband+1,:), abs(resp(subband+1,:)), '.', 'color', rand(1,3))
+        %plot(f(subband+1,:), abs(resp(subband+1,:)), '.', 'color', rand(1,3))
+        plot(f(subband+1,:), abs(resp(subband+1,:)), 'color', rand(1,3))
         grid on;
     end
     
@@ -97,15 +101,15 @@ function resOutFileName=findFreqs(bandOrOfflineDataCtime,Adrive);
         end
     
         % save figure and data to directory
-        sweepFigureFilename=fullfile(resultsDir,[num2str(ctime),'_amplSweep.png']);
+        sweepFigureFilename=fullfile(resultsDir,[num2str(ctime),smurfRoot, '_amplSweep.png']);
         saveas(gcf,sweepFigureFilename);
-        sweepDataFilename=fullfile(resultsDir,[num2str(ctime),'_amplSweep.mat']);
+        sweepDataFilename=fullfile(resultsDir,[num2str(ctime),smurfRoot, '_amplSweep.mat']);
         save(sweepDataFilename,'f','resp');
     end
     
     % analyze
     if ~isOffline
-        plotsaveprefix=fullfile(resultsDir,num2str(ctime));
+        plotsaveprefix=fullfile(resultsDir,[num2str(ctime), smurfRoot]);
     else
         plotsaveprefix='';
     end
@@ -132,13 +136,13 @@ function resOutFileName=findFreqs(bandOrOfflineDataCtime,Adrive);
         results=horzcat(tone_subbands',tone_Foffs',res');
         results = sortrows(results,3);
         
-        resOutFileName = fullfile(resultsDir, [num2str(ctime), '.res']);
+        resOutFileName = fullfile(resultsDir, [num2str(ctime),smurfRoot,'.res']);
         %% works, but looks dumb
         dlmwrite(resOutFileName,double(results),'delimiter','\t','precision','%0.3f');
         
         %
-        system('rm /data/cpu-b000-hp01/cryo_data/data2/current_res');
-        system(sprintf('ln -s %s /data/cpu-b000-hp01/cryo_data/data2/current_res', resOutFileName));
+        system(sprintf('rm /data/cpu-b000-hp01/cryo_data/data2/current_res_%s', smurfRoot));
+        system(sprintf('ln -s %s /data/cpu-b000-hp01/cryo_data/data2/current_res_%s', resOutFileName, smurfRoot));
     end
     
     
