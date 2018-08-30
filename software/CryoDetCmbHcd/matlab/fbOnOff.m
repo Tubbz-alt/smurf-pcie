@@ -2,7 +2,7 @@ function [f,dF] = fbOnOff(channel, dwell )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
-rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
++rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
 if nargin <2
     dwell = .1
 end
