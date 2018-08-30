@@ -80,28 +80,28 @@ AMCc:
             REG[11]:  0x61300B
             REG[12]:  0x0001041C
           PLL[2]:
-            REG[0]:  0x00000240
-            REG[1]:  0xA180001
+            REG[0]:  0x00200300
+            REG[1]:  0xD180001
             REG[2]:  0x12
             REG[3]:  0x00000003
             REG[4]:  0x30008B84
             REG[5]:  0x800025
-            REG[6]:  0x15034476
-            REG[7]:  0x12000007
+            REG[6]:  0x35028476
+            REG[7]:  0x120000E7
             REG[8]:  0x102D0428
             REG[9]:  0x34337CC9
             REG[10]:  0x00C03FFA
             REG[11]:  0x61300B
             REG[12]:  0x0001041C
           PLL[3]:
-            REG[0]:  0x00000280
-            REG[1]:  0xB32AAA1
+            REG[0]:  0x00200340
+            REG[1]:  0xE32AAA1
             REG[2]:  0x80032
             REG[3]:  0x00000003
             REG[4]:  0x30008B84
             REG[5]:  0x800025
-            REG[6]:  0x15030476
-            REG[7]:  0x12000007
+            REG[6]:  0x35024476
+            REG[7]:  0x120000e7
             REG[8]:  0x102D0428
             REG[9]:  0x34337CC9
             REG[10]:  0x00C03FFA
@@ -252,7 +252,7 @@ AMCc:
             DacReg[23]: 0x0000
             DacReg[24]: 0x0000
             DacReg[25]: 0x4e00  # This is the upper 16 bits of the NCO frequency for the DACCD path
-            DacReg[26]: 0x0020
+            DacReg[26]: 0x0025  # Turn off unused DACS (B and D)
             DacReg[27]: 0x0000
             DacReg[28]: 0x0000
             DacReg[29]: 0x0000
@@ -522,9 +522,9 @@ AMCc:
         # CsvFilePath: /afs/slac.stanford.edu/u/re/ruckman/projects/lcls/cryo-det/firmware/targets/CryoCmbRtmEth/config/multitones_500_baseband.csv
         ##CsvFilePath: /afs/slac.stanford.edu/u/rl/dandvan/cryo_det/matlab/multitone_space1p8gauss0p6MHz_b_baseband16k.csv
         #CsvFilePath: /home/cryo/mdewart/multitone_space1p8gauss0p6MHz_b_baseband16k.csv
-        CsvFilePath: /home/cryo/matlab/broad_noise4_NIST.csv
+        #CsvFilePath: /home/cryo/matlab/broad_noise4_NIST.csv
         #
-        # CsvFilePath: /afs/slac.stanford.edu/u/rl/dandvan/cryo_det/matlab/Is_zeros_Qs_ones.csv
+        CsvFilePath: /afs/slac.stanford.edu/u/rl/dandvan/cryo_det/matlab/multitone_1p8_gaussp3sdev_baseband16k.csv
         # CsvFilePath: /afs/slac.stanford.edu/u/rl/dandvan/cryo_det/matlab/broad_noise4.csv
         # CsvFilePath: /afs/slac.stanford.edu/u/re/ruckman/projects/lcls/cryo-det/firmware/targets/CryoCmbRtmEth/config/example_csv_2Tones_4096pts.csv
         # CsvFilePath: /afs/slac.stanford.edu/u/re/ruckman/projects/lcls/cryo-det/firmware/targets/CryoCmbRtmEth/config/example_csv_1Tones_10MHzoffset.csv
