@@ -102,6 +102,7 @@ function takeDebugData( band, fileName, varargin )
            prevPercentDone = percentDone;
        end
     end
+    pause(1)
     dispstat('Finished acqusition', 'keepprev') % newline
 
 
