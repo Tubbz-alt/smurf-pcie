@@ -12,6 +12,8 @@
 
 function [qPhase, Imax] = findQuadrature2( rootPath, frequency, which, Npts, Adrive, freqCenter )
 
+bandNo = 2; % sorry
+
 if nargin <3
     which=0;
 end
@@ -30,8 +32,9 @@ end
 
 % freqOffset     = -20.25;
 freqOffset = frequency;
-[band, fOff]   = f2band(freqCenter + freqOffset,freqCenter);
-chan           = band*16;
+[band, fOff]   = f2band(freqCenter + freqOffset,bandNo);
+%chan           = band*16;
+chan = 0; % also sorry
 
 feedbackEnable = 0;
 etaMag         = 1;
