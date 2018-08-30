@@ -1,6 +1,11 @@
 
 % s
 function setup( band )
+% Make sure SMURF_EPICS_ROOT is pointed at the demo for all following
+% matlab commands; otherwise someone doing software testing could screw up
+% testing with the blade connected to the cryostat.
+    setenv('SMURF_EPICS_ROOT','demo_epics');
+    
     if( ~exist('band', 'var' ) )
         band = 2;
     end
@@ -30,6 +35,7 @@ function setup( band )
     lcaPut([root,'feedbackLimit'], num2str(256));
     lcaPut([root,'feedbackPolarity'], num2str(1));
     lcaPut([root, 'bandCenterMHz'], num2str(4250 + 500*band));
+    lcaPut([root, 'dspEnable'], num2str(1));
 
    if SMuRF
 
@@ -103,7 +109,11 @@ function setup( band )
     %     lcaPut(['demo_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable1'], num2str(1));
     %     lcaPut(['demo_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable2'], num2str(1));
     %     lcaPut(['demo_epics:AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:','lmsEnable3'], num2str(1));
-    end
+   end
+    
+    lcaPut([getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdRx:LINK_DISABLE'], 1);
+    pause(0.5);
+    lcaPut([getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdRx:LINK_DISABLE'], 0);
 
     readFpgaStatus( root )
 end
