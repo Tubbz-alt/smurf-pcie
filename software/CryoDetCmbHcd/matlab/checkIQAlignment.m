@@ -1,9 +1,9 @@
 disp('!!! Remember, must read the correct ADC.  Should match the band # in setup.m');
 
-for Band=[2,3]
+for Band=[0,1,2,3]
     % 2.4e6 is downconverted channel rate
     Fadc = 614.4e6;
-    rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[0]:'];
+    rootPath = [getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppCore:SysgenCryo:Base[2]:'];
     
     %% What does DAC think it's putting out?
     dacNumber = Band;
