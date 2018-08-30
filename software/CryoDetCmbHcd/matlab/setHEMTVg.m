@@ -1,8 +1,14 @@
-function hemtVg(bit,doCfg)
+function setHEMTVg(bit,doCfg)
 
 if nargin <2
     % set to inverse
     doCfg=false;
+end
+
+% don't let it go to high
+if bit>350e3
+    bit=350e3;
+    disp(['Too high! Resetting to ' num2str(bit)])
 end
 
 if bit<0
@@ -34,7 +40,7 @@ disp(sprintf('-> Set Vg=%0.3f V',Vg));
 %    %% C_RtmSpiSr
 %    rtmSpiRootPath = 'mitch_epics:AMCc:FpgaTopLevel:AppTop:AppCore:RtmCryoDet:C_RtmSpiSr:';
 %    configvars={'AD5790_NOP_Reg','AD5790_Data_Reg','AD5790_Ctrl_Reg','AD5790_ClrCode_Reg','Config_Reg', ...
-%                'Cfg_Reg_Ena Bit','Ramp Slope','Mode Control'}; %,'Fast Step Size','Fast Rst Value'}; %% not reading right now 
+%               'Cfg_Reg_Ena Bit','Ramp Slope','Mode Control'}; %,'Fast Step Size','Fast Rst Value'}; %% not reading right now 
 %    for cfgvar=configvars
 %        value=lcaGet([rtmSpiRootPath, cfgvar{1}]);
 %        disp([rtmSpiRootPath, cfgvar{1}]);
