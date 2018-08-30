@@ -4,7 +4,7 @@ singleChannelReadoutOpt2 = 0;
 filterAlpha              = hex2dec('4000');
 decimation               = 1;
 
-onlyOneChannelEachBand   = true;
+onlyOneChannelEachBand   = false;
 
 bases = [2,3];
 eta  ={eta2, eta3};
