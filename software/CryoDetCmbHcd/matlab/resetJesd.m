@@ -1,6 +1,5 @@
 function resetJesd()
-    PVprefix=[getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdRx:'];
-    lcaPut([PVprefix,'ResetGTs'],1);
-    pause(0.1);
-    lcaPut([PVprefix,'ResetGTs'],0);
+    lcaPut([getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdRx:LINK_DISABLE'], 1);
+    pause(0.5);
+    lcaPut([getSMuRFenv('SMURF_EPICS_ROOT'),':AMCc:FpgaTopLevel:AppTop:AppTopJesd[0]:JesdRx:LINK_DISABLE'], 0);
 end
