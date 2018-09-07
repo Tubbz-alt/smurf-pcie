@@ -1,1 +1,0 @@
-disp(char(lcaGet('mitch_epics:AMCc:FpgaTopLevel:AmcCarrierCore:AxiVersion:GitHash')));
