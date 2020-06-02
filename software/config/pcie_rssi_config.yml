@@ -51,8 +51,13 @@ pcie:
         ClientRemotePort[1]: 8195 # UDP_SRV_BP_MGS_IDX_C = UDP server for Backplane Messaging on AMC carrier  
       ############################    
       RssiClient[:]:   
-        OpenConn: 0x1
-        CloseConn: 0x0          
+        locRetransTimeout: 100
+        locCumAckTimeout: 2
+        locNullSegTimeout: 500
+        locMaxCumAck: 16
+        Mode: 0x1 # Override the FW defaults
+        CloseConn: 0x0
+        OpenConn: 0x1 # Open the connection
       ############################     
       UdpEngine[0]:  
         ClientRemoteIp[:]: 10.0.3.102 # Slot#2 Link 
