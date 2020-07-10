@@ -37,6 +37,7 @@ build*
 *.gz
 *.ltx
 *.hdf
+*.xsa
 
 # Sysgen
 .Xil/
