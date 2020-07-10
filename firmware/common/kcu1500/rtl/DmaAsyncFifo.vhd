@@ -5,11 +5,11 @@
 -- Description: DmaAsyncFifo File
 -------------------------------------------------------------------------------
 -- This file is part of 'axi-pcie-core'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'axi-pcie-core', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'axi-pcie-core', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -30,43 +30,48 @@ entity DmaAsyncFifo is
       TPD_G : time := 1 ns);
    port (
       -- UDP Outbound Config Interface (axiClk domain)
-      udpObMuxSel    : in  sl;
-      udpObDest      : in  slv(7 downto 0);
+      udpObMuxSel        : in  sl;
+      udpObDest          : in  slv(7 downto 0);
       -- Primary DMA Interface (dmaPriClk domain)
-      dmaPriClk      : in  sl;
-      dmaPriRst      : in  sl;
-      dmaPriObMaster : in  AxiStreamMasterType;
-      dmaPriObSlave  : out AxiStreamSlaveType;
-      dmaPriIbMaster : out AxiStreamMasterType;
-      dmaPriIbSlave  : in  AxiStreamSlaveType;
+      dmaPriClk          : in  sl;
+      dmaPriRst          : in  sl;
+      dmaPriBuffGrpPause : in  slv(7 downto 0);
+      dmaPriObMaster     : in  AxiStreamMasterType;
+      dmaPriObSlave      : out AxiStreamSlaveType;
+      dmaPriIbMaster     : out AxiStreamMasterType;
+      dmaPriIbSlave      : in  AxiStreamSlaveType;
       -- Secondary DMA Interface (dmaSecClk domain)
-      dmaSecClk      : in  sl;
-      dmaSecRst      : in  sl;
-      dmaSecObMaster : in  AxiStreamMasterType;
-      dmaSecObSlave  : out AxiStreamSlaveType;
-      dmaSecIbMaster : out AxiStreamMasterType;
-      dmaSecIbSlave  : in  AxiStreamSlaveType;
+      dmaSecClk          : in  sl;
+      dmaSecRst          : in  sl;
+      dmaSecObMaster     : in  AxiStreamMasterType;
+      dmaSecObSlave      : out AxiStreamSlaveType;
+      dmaSecIbMaster     : out AxiStreamMasterType;
+      dmaSecIbSlave      : in  AxiStreamSlaveType;
       -- UDP Interface (axiClk/axilClk domain)
-      axiClk         : in  sl;
-      axiRst         : in  sl;
-      udpIbMaster    : out AxiStreamMasterType;  -- Same clock domain as UdpEngine
-      udpIbSlave     : in  AxiStreamSlaveType;
-      udpObMaster    : in  AxiStreamMasterType;  -- Same clock domain as UdpLargeDataBuffer
-      udpObSlave     : out AxiStreamSlaveType;
+      axiClk             : in  sl;
+      axiRst             : in  sl;
+      udpIbMaster        : out AxiStreamMasterType;  -- Same clock domain as UdpEngine
+      udpIbSlave         : in  AxiStreamSlaveType;
+      udpObMaster        : in  AxiStreamMasterType;  -- Same clock domain as UdpLargeDataBuffer
+      udpObSlave         : out AxiStreamSlaveType;
       -- RSSI Interface (axilClk domain)
-      axilClk        : in  sl;
-      axilRst        : in  sl;
-      rssiIbMaster   : out AxiStreamMasterType;
-      rssiIbSlave    : in  AxiStreamSlaveType;
-      rssiObMaster   : in  AxiStreamMasterType;
-      rssiObSlave    : out AxiStreamSlaveType);
+      axilClk            : in  sl;
+      axilRst            : in  sl;
+      rssiIbMaster       : out AxiStreamMasterType;
+      rssiIbSlave        : in  AxiStreamSlaveType;
+      rssiObMaster       : in  AxiStreamMasterType;
+      rssiObSlave        : out AxiStreamSlaveType);
 end DmaAsyncFifo;
 
 architecture mapping of DmaAsyncFifo is
 
-   constant MUX_ROUTES_C : Slv8Array(CLIENT_SIZE_C-1 downto 0) := (
-      0 => "--------",
-      1 => "--------");
+   constant TDEST_ROUTES_C : Slv8Array(CLIENT_SIZE_C-1 downto 0) := (
+      1 => "--------",
+      0 => "--------");
+
+   constant TID_ROUTES_C : Slv8Array(1 downto 0) := (
+      0 => x"01",
+      1 => x"00");
 
    signal rssiTxMaster : AxiStreamMasterType;
    signal rssiTxSlave  : AxiStreamSlaveType;
@@ -205,7 +210,9 @@ begin
          PIPE_STAGES_G        => 1,
          NUM_SLAVES_G         => 2,
          MODE_G               => "ROUTED",
-         TDEST_ROUTES_G       => MUX_ROUTES_C,
+         TDEST_ROUTES_G       => TDEST_ROUTES_C,
+         TID_MODE_G           => "ROUTED",
+         TID_ROUTES_G         => TID_ROUTES_C,
          ILEAVE_EN_G          => true,
          ILEAVE_ON_NOTVALID_G => true,
          ILEAVE_REARB_G       => 128)
@@ -214,6 +221,7 @@ begin
          axisClk      => dmaPriClk,
          axisRst      => dmaPriReset,
          -- Slaves
+         disableSel   => dmaPriBuffGrpPause(1 downto 0),
          sAxisMasters => dmaPriIbMasters,
          sAxisSlaves  => dmaPriIbSlaves,
          -- Master
@@ -307,12 +315,12 @@ begin
       masters(1).tDest := obDest;
 
       -- Check if forwarding to primary DMA path
-      if (muxSel = '0') then  -- Used for testing with computer without PCIe bifurcation 
+      if (muxSel = '0') then  -- Used for testing with computer without PCIe bifurcation
          -- Blowoff secondary DMA path
          masters(1).tValid := '0';
          slaves(1).tReady  := '1';
       -- Else forwarding to secondary DMA path
-      else                              -- Default Configuration 
+      else                              -- Default Configuration
          -- Blowoff primary DMA path
          masters(0).tValid := '0';
          slaves(0).tReady  := '1';

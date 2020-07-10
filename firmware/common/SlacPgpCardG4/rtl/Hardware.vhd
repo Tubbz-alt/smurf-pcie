@@ -5,11 +5,11 @@
 -- Description: Hardware File
 -------------------------------------------------------------------------------
 -- This file is part of 'axi-pcie-core'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'axi-pcie-core', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'axi-pcie-core', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -33,9 +33,9 @@ entity Hardware is
       CLK_FREQUENCY_G : real := 156.25E+6;  -- units of Hz
       AXI_BASE_ADDR_G : slv(31 downto 0));
    port (
-      ------------------------      
+      ------------------------
       --  Top Level Interfaces
-      ------------------------    
+      ------------------------
       -- AXI-Lite Interface
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -46,13 +46,14 @@ entity Hardware is
       -- DMA Interface
       dmaClk          : in  sl;
       dmaRst          : in  sl;
-      dmaObMasters    : in  AxiStreamMasterArray(NUM_RSSI_C downto 0);
-      dmaObSlaves     : out AxiStreamSlaveArray(NUM_RSSI_C downto 0);
-      dmaIbMasters    : out AxiStreamMasterArray(NUM_RSSI_C downto 0);
-      dmaIbSlaves     : in  AxiStreamSlaveArray(NUM_RSSI_C downto 0);
+      dmaBuffGrpPause : in  slv(7 downto 0);
+      dmaObMasters    : in  AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
+      dmaObSlaves     : out AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
+      dmaIbMasters    : out AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
+      dmaIbSlaves     : in  AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
       ---------------------
       --  Hardware Ports
-      ---------------------    
+      ---------------------
       -- QSFP[1:0] Ports
       qsfpRefClkP     : in  sl;
       qsfpRefClkN     : in  sl;
@@ -123,48 +124,31 @@ begin
    -- DMA ASYNC FIFOs
    ------------------
    GEN_DMA : for i in NUM_RSSI_C-1 downto 0 generate
-      U_DataPath : entity work.DataDmaAsyncFifo
+      U_DmaAsyncFifo : entity work.DmaAsyncFifo
          generic map (
             TPD_G => TPD_G)
          port map (
             -- Clocks and Resets
-            axilClk     => axilClk,
-            axilRst     => axilReset,
-            dmaClk      => dmaClk,
-            dmaRst      => dmaRst,
-            -- UDP Config Interface (axilClk domain)
-            udpDest     => udpObDest,
             -- DMA Interface (dmaClk domain)
-            dmaObMaster => dmaObMasters(i),
-            dmaObSlave  => dmaObSlaves(i),
-            dmaIbMaster => dmaIbMasters(i),
-            dmaIbSlave  => dmaIbSlaves(i),
-            -- UDP Interface (axilClk domain)
-            udpIbMaster => udpIbMasters(i),
-            udpIbSlave  => udpIbSlaves(i),
-            udpObMaster => udpObMasters(i),
-            udpObSlave  => udpObSlaves(i));
+            dmaClk          => dmaClk,
+            dmaRst          => dmaRst,
+            dmaBuffGrpPause => dmaBuffGrpPause,
+            dmaObMaster     => dmaObMasters(i),
+            dmaObSlave      => dmaObSlaves(i),
+            dmaIbMaster     => dmaIbMasters(i),
+            dmaIbSlave      => dmaIbSlaves(i),
+            -- UDP/RSSI Interface (axilClk domain)
+            axilClk         => axilClk,
+            axilRst         => axilReset,
+            udpIbMaster     => udpIbMasters(i),
+            udpIbSlave      => udpIbSlaves(i),
+            udpObMaster     => udpObMasters(i),
+            udpObSlave      => udpObSlaves(i),
+            rssiIbMaster    => rssiIbMasters(i),
+            rssiIbSlave     => rssiIbSlaves(i),
+            rssiObMaster    => rssiObMasters(i),
+            rssiObSlave     => rssiObSlaves(i));
    end generate GEN_DMA;
-
-   U_RegPath : entity work.RegDmaAsyncFifo
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         -- Clocks and Resets
-         axilClk       => axilClk,
-         axilRst       => axilReset,
-         dmaClk        => dmaClk,
-         dmaRst        => dmaRst,
-         -- DMA Interface (dmaClk domain)
-         dmaObMaster   => dmaObMasters(NUM_RSSI_C),
-         dmaObSlave    => dmaObSlaves(NUM_RSSI_C),
-         dmaIbMaster   => dmaIbMasters(NUM_RSSI_C),
-         dmaIbSlave    => dmaIbSlaves(NUM_RSSI_C),
-         -- RSSI Interface (axilClk domain)
-         rssiIbMasters => rssiIbMasters,
-         rssiIbSlaves  => rssiIbSlaves,
-         rssiObMasters => rssiObMasters,
-         rssiObSlaves  => rssiObSlaves);
 
    ---------------------
    -- AXI-Lite Crossbar
@@ -224,14 +208,14 @@ begin
          axilReadSlave   => axilReadSlaves(PHY_INDEX_C),
          axilWriteMaster => axilWriteMasters(PHY_INDEX_C),
          axilWriteSlave  => axilWriteSlaves(PHY_INDEX_C),
-         -- Streaming DMA Interface 
+         -- Streaming DMA Interface
          udpIbMasters    => macObMasters,
          udpIbSlaves     => macObSlaves,
          udpObMasters    => macIbMasters,
          udpObSlaves     => macIbSlaves,
          ---------------------
          --  Hardware Ports
-         ---------------------    
+         ---------------------
          -- QSFP[1:0] Ports
          qsfpRefClkP     => qsfpRefClkP,
          qsfpRefClkN     => qsfpRefClkN,
@@ -303,7 +287,7 @@ begin
          udpObMuxSel     => open,
          udpObDest       => udpObDest,
          udpToPhyRoute   => udpToPhyRoute,
-         -- AXI-Lite Interface 
+         -- AXI-Lite Interface
          axilReadMaster  => buffReadMasters(NUM_RSSI_C),
          axilReadSlave   => buffReadSlaves(NUM_RSSI_C),
          axilWriteMaster => buffWriteMasters(NUM_RSSI_C),

@@ -5,11 +5,11 @@
 -- Description: Hardware File
 -------------------------------------------------------------------------------
 -- This file is part of 'axi-pcie-core'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'axi-pcie-core', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'axi-pcie-core', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -33,57 +33,58 @@ entity Hardware is
       CLK_FREQUENCY_G : real := 156.25E+6;  -- units of Hz
       AXI_BASE_ADDR_G : slv(31 downto 0));
    port (
-      ------------------------      
+      ------------------------
       --  Top Level Interfaces
-      ------------------------    
+      ------------------------
       -- AXI-Lite Interface (axilClk domain)
-      axilClk         : in  sl;
-      axilRst         : in  sl;
-      axilReadMaster  : in  AxiLiteReadMasterType;
-      axilReadSlave   : out AxiLiteReadSlaveType;
-      axilWriteMaster : in  AxiLiteWriteMasterType;
-      axilWriteSlave  : out AxiLiteWriteSlaveType;
+      axilClk            : in  sl;
+      axilRst            : in  sl;
+      axilReadMaster     : in  AxiLiteReadMasterType;
+      axilReadSlave      : out AxiLiteReadSlaveType;
+      axilWriteMaster    : in  AxiLiteWriteMasterType;
+      axilWriteSlave     : out AxiLiteWriteSlaveType;
       -- Primary DMA Interface (dmaPriClk domain)
-      dmaPriClk       : in  sl;
-      dmaPriRst       : in  sl;
-      dmaPriObMasters : in  AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
-      dmaPriObSlaves  : out AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
-      dmaPriIbMasters : out AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
-      dmaPriIbSlaves  : in  AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
+      dmaPriClk          : in  sl;
+      dmaPriRst          : in  sl;
+      dmaPriBuffGrpPause : in  slv(7 downto 0);
+      dmaPriObMasters    : in  AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
+      dmaPriObSlaves     : out AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
+      dmaPriIbMasters    : out AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
+      dmaPriIbSlaves     : in  AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
       -- Secondary DMA Interface (dmaSecClk domain)
-      dmaSecClk       : in  sl;
-      dmaSecRst       : in  sl;
-      dmaSecObMasters : in  AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
-      dmaSecObSlaves  : out AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
-      dmaSecIbMasters : out AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
-      dmaSecIbSlaves  : in  AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
+      dmaSecClk          : in  sl;
+      dmaSecRst          : in  sl;
+      dmaSecObMasters    : in  AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
+      dmaSecObSlaves     : out AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
+      dmaSecIbMasters    : out AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
+      dmaSecIbSlaves     : in  AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
       -- DDR Interface (ddrClk domain)
-      ddrClk          : in  slv((NUM_RSSI_C/2)-1 downto 0);
-      ddrRst          : in  slv((NUM_RSSI_C/2)-1 downto 0);
-      ddrWriteMasters : out AxiWriteMasterArray((NUM_RSSI_C/2)-1 downto 0);
-      ddrWriteSlaves  : in  AxiWriteSlaveArray((NUM_RSSI_C/2)-1 downto 0);
-      ddrReadMasters  : out AxiReadMasterArray((NUM_RSSI_C/2)-1 downto 0);
-      ddrReadSlaves   : in  AxiReadSlaveArray((NUM_RSSI_C/2)-1 downto 0);
+      ddrClk             : in  slv((NUM_RSSI_C/2)-1 downto 0);
+      ddrRst             : in  slv((NUM_RSSI_C/2)-1 downto 0);
+      ddrWriteMasters    : out AxiWriteMasterArray((NUM_RSSI_C/2)-1 downto 0);
+      ddrWriteSlaves     : in  AxiWriteSlaveArray((NUM_RSSI_C/2)-1 downto 0);
+      ddrReadMasters     : out AxiReadMasterArray((NUM_RSSI_C/2)-1 downto 0);
+      ddrReadSlaves      : in  AxiReadSlaveArray((NUM_RSSI_C/2)-1 downto 0);
       -- User AXI Clock and Reset
-      axiClk          : in  sl;
-      axiRst          : in  sl;
+      axiClk             : in  sl;
+      axiRst             : in  sl;
       ---------------------
       --  Hardware Ports
-      ---------------------    
+      ---------------------
       -- QSFP[0] Ports
-      qsfp0RefClkP    : in  slv(1 downto 0);
-      qsfp0RefClkN    : in  slv(1 downto 0);
-      qsfp0RxP        : in  slv(3 downto 0);
-      qsfp0RxN        : in  slv(3 downto 0);
-      qsfp0TxP        : out slv(3 downto 0);
-      qsfp0TxN        : out slv(3 downto 0);
+      qsfp0RefClkP       : in  slv(1 downto 0);
+      qsfp0RefClkN       : in  slv(1 downto 0);
+      qsfp0RxP           : in  slv(3 downto 0);
+      qsfp0RxN           : in  slv(3 downto 0);
+      qsfp0TxP           : out slv(3 downto 0);
+      qsfp0TxN           : out slv(3 downto 0);
       -- QSFP[1] Ports
-      qsfp1RefClkP    : in  slv(1 downto 0);
-      qsfp1RefClkN    : in  slv(1 downto 0);
-      qsfp1RxP        : in  slv(3 downto 0);
-      qsfp1RxN        : in  slv(3 downto 0);
-      qsfp1TxP        : out slv(3 downto 0);
-      qsfp1TxN        : out slv(3 downto 0));
+      qsfp1RefClkP       : in  slv(1 downto 0);
+      qsfp1RefClkN       : in  slv(1 downto 0);
+      qsfp1RxP           : in  slv(3 downto 0);
+      qsfp1RxN           : in  slv(3 downto 0);
+      qsfp1TxP           : out slv(3 downto 0);
+      qsfp1TxN           : out slv(3 downto 0));
 end Hardware;
 
 architecture mapping of Hardware is
@@ -166,36 +167,37 @@ begin
             TPD_G => TPD_G)
          port map (
             -- UDP Outbound Config Interface (axiClk domain)
-            udpObMuxSel    => udpObMuxSel,
-            udpObDest      => udpObDest,
+            udpObMuxSel        => udpObMuxSel,
+            udpObDest          => udpObDest,
             -- Primary DMA Interface (dmaPriClk domain)
-            dmaPriClk      => dmaPriClk,
-            dmaPriRst      => dmaPriRst,
-            dmaPriObMaster => dmaPriObMasters(i),
-            dmaPriObSlave  => dmaPriObSlaves(i),
-            dmaPriIbMaster => dmaPriIbMasters(i),
-            dmaPriIbSlave  => dmaPriIbSlaves(i),
+            dmaPriClk          => dmaPriClk,
+            dmaPriRst          => dmaPriRst,
+            dmaPriBuffGrpPause => dmaPriBuffGrpPause,
+            dmaPriObMaster     => dmaPriObMasters(i),
+            dmaPriObSlave      => dmaPriObSlaves(i),
+            dmaPriIbMaster     => dmaPriIbMasters(i),
+            dmaPriIbSlave      => dmaPriIbSlaves(i),
             -- Secondary DMA Interface (dmaSecClk domain)
-            dmaSecClk      => dmaSecClk,
-            dmaSecRst      => dmaSecRst,
-            dmaSecObMaster => dmaSecObMasters(i),
-            dmaSecObSlave  => dmaSecObSlaves(i),
-            dmaSecIbMaster => dmaSecIbMasters(i),
-            dmaSecIbSlave  => dmaSecIbSlaves(i),
+            dmaSecClk          => dmaSecClk,
+            dmaSecRst          => dmaSecRst,
+            dmaSecObMaster     => dmaSecObMasters(i),
+            dmaSecObSlave      => dmaSecObSlaves(i),
+            dmaSecIbMaster     => dmaSecIbMasters(i),
+            dmaSecIbSlave      => dmaSecIbSlaves(i),
             -- UDP Interface (axiClk/axilClk domain)
-            axiClk         => axiClk,
-            axiRst         => axiReset,
-            udpIbMaster    => udpIbMasters(i),
-            udpIbSlave     => udpIbSlaves(i),
-            udpObMaster    => ddrObMasters(i),
-            udpObSlave     => ddrObSlaves(i),
+            axiClk             => axiClk,
+            axiRst             => axiReset,
+            udpIbMaster        => udpIbMasters(i),
+            udpIbSlave         => udpIbSlaves(i),
+            udpObMaster        => ddrObMasters(i),
+            udpObSlave         => ddrObSlaves(i),
             -- RSSI Interface (axilClk domain)
-            axilClk        => axilClk,
-            axilRst        => axilReset,
-            rssiIbMaster   => rssiIbMasters(i),
-            rssiIbSlave    => rssiIbSlaves(i),
-            rssiObMaster   => rssiObMasters(i),
-            rssiObSlave    => rssiObSlaves(i));
+            axilClk            => axilClk,
+            axilRst            => axilReset,
+            rssiIbMaster       => rssiIbMasters(i),
+            rssiIbSlave        => rssiIbSlaves(i),
+            rssiObMaster       => rssiObMasters(i),
+            rssiObSlave        => rssiObSlaves(i));
    end generate GEN_DMA;
 
    ---------------------
@@ -277,14 +279,14 @@ begin
          axilReadSlave   => axilReadSlaves(PHY_INDEX_C),
          axilWriteMaster => axilWriteMasters(PHY_INDEX_C),
          axilWriteSlave  => axilWriteSlaves(PHY_INDEX_C),
-         -- Streaming DMA Interface 
+         -- Streaming DMA Interface
          udpIbMasters    => macObMasters,
          udpIbSlaves     => macObSlaves,
          udpObMasters    => macIbMasters,
          udpObSlaves     => macIbSlaves,
          ---------------------
          --  Hardware Ports
-         ---------------------    
+         ---------------------
          -- QSFP[0] Ports
          qsfp0RefClkP    => qsfp0RefClkP,
          qsfp0RefClkN    => qsfp0RefClkN,
@@ -380,12 +382,12 @@ begin
          udpObMuxSel     => udpObMuxSel,
          udpObDest       => udpObDest,
          udpToPhyRoute   => udpToPhyRoute,
-         -- AXI-Lite Interface 
+         -- AXI-Lite Interface
          axilReadMaster  => buffReadMasters(NUM_RSSI_C),
          axilReadSlave   => buffReadSlaves(NUM_RSSI_C),
          axilWriteMaster => buffWriteMasters(NUM_RSSI_C),
          axilWriteSlave  => buffWriteSlaves(NUM_RSSI_C));
-         
+
    DDR_AXIS_MON_IB : entity surf.AxiStreamMonAxiL
       generic map(
          TPD_G            => TPD_G,
@@ -405,7 +407,7 @@ begin
          sAxilWriteMaster => buffWriteMasters(NUM_RSSI_C+1),
          sAxilWriteSlave  => buffWriteSlaves(NUM_RSSI_C+1),
          sAxilReadMaster  => buffReadMasters(NUM_RSSI_C+1),
-         sAxilReadSlave   => buffReadSlaves(NUM_RSSI_C+1));  
+         sAxilReadSlave   => buffReadSlaves(NUM_RSSI_C+1));
 
    DDR_AXIS_MON_OB : entity surf.AxiStreamMonAxiL
       generic map(
@@ -426,6 +428,6 @@ begin
          sAxilWriteMaster => buffWriteMasters(NUM_RSSI_C+2),
          sAxilWriteSlave  => buffWriteSlaves(NUM_RSSI_C+2),
          sAxilReadMaster  => buffReadMasters(NUM_RSSI_C+2),
-         sAxilReadSlave   => buffReadSlaves(NUM_RSSI_C+2));           
+         sAxilReadSlave   => buffReadSlaves(NUM_RSSI_C+2));
 
 end mapping;

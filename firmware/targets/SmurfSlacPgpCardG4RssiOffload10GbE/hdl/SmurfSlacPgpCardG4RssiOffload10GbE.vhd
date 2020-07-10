@@ -2,42 +2,29 @@
 -- File       : SmurfSlacPgpCardG4RssiOffload10GbE.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
+-- Buffer Pause Group:
+--
+--    Group[0]   = TDEST != 0xC1
+--    Group[1]   = TDEST == 0xC1
+--    Group[7:2] = Unused
+--
+-------------------------------------------------------------------------------
 -- DMA Mapping:
 --
---    DMA[Lane=0][TDEST=udpObDest]: UDP[Lane=0]
---    DMA[Lane=1][TDEST=udpObDest]: UDP[Lane=1]
---    DMA[Lane=2][TDEST=udpObDest]: UDP[Lane=2]
---    DMA[Lane=3][TDEST=udpObDest]: UDP[Lane=3]
---    DMA[Lane=4][TDEST=udpObDest]: UDP[Lane=4]
---    DMA[Lane=5][TDEST=udpObDest]: UDP[Lane=5]
+--    DMA[Lane=0]: UDP[Lane=0]
+--    DMA[Lane=1]: UDP[Lane=1]
+--    DMA[Lane=2]: UDP[Lane=2]
+--    DMA[Lane=3]: UDP[Lane=3]
+--    DMA[Lane=4]: UDP[Lane=4]
+--    DMA[Lane=5]: UDP[Lane=5]
 --
---    DMA[Lane=6][TDEST=0x00:0x07]: RSSI[Lane=0][TDEST=0x00:0x07]
---    DMA[Lane=6][TDEST=0x08:0x0F]: RSSI[Lane=0][TDEST=0x80:0x87]
---
---    DMA[Lane=6][TDEST=0x10:0x17]: RSSI[Lane=1][TDEST=0x00:0x07]
---    DMA[Lane=6][TDEST=0x18:0x1F]: RSSI[Lane=1][TDEST=0x80:0x87]
---
---    DMA[Lane=6][TDEST=0x20:0x27]: RSSI[Lane=2][TDEST=0x00:0x07]
---    DMA[Lane=6][TDEST=0x28:0x2F]: RSSI[Lane=2][TDEST=0x80:0x87]
---
---    DMA[Lane=6][TDEST=0x30:0x37]: RSSI[Lane=3][TDEST=0x00:0x07]
---    DMA[Lane=6][TDEST=0x38:0x3F]: RSSI[Lane=3][TDEST=0x80:0x87]
---
---    DMA[Lane=6][TDEST=0x40:0x47]: RSSI[Lane=4][TDEST=0x00:0x07]
---    DMA[Lane=6][TDEST=0x48:0x4F]: RSSI[Lane=4][TDEST=0x80:0x87]
---
---    DMA[Lane=6][TDEST=0x50:0x57]: RSSI[Lane=5][TDEST=0x00:0x07]
---    DMA[Lane=6][TDEST=0x58:0x5F]: RSSI[Lane=5][TDEST=0x80:0x87]
---
--------------------------------------------------------------------------------
--- Note: udpObDest default is 0xC1 (refer to UdpDebug.vhd)
 -------------------------------------------------------------------------------
 -- This file is part of 'SMURF PCIE'.
--- It is subject to the license terms in the LICENSE.txt file found in the 
--- top-level directory of this distribution and at: 
---    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
--- No part of 'SMURF PCIE', including this file, 
--- may be copied, modified, propagated, or distributed except according to 
+-- It is subject to the license terms in the LICENSE.txt file found in the
+-- top-level directory of this distribution and at:
+--    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+-- No part of 'SMURF PCIE', including this file,
+-- may be copied, modified, propagated, or distributed except according to
 -- the terms contained in the LICENSE.txt file.
 -------------------------------------------------------------------------------
 
@@ -80,7 +67,7 @@ entity SmurfSlacPgpCardG4RssiOffload10GbE is
       --------------
       -- System Ports
       emcClk      : in  sl;
-      -- Boot Memory Ports 
+      -- Boot Memory Ports
       flashCsL    : out sl;
       flashMosi   : out sl;
       flashMiso   : in  sl;
@@ -124,7 +111,6 @@ architecture top_level of SmurfSlacPgpCardG4RssiOffload10GbE is
          addrBits     => 23,
          connectivity => x"FFFF"));
 
-
    signal axilReadMaster  : AxiLiteReadMasterType;
    signal axilReadSlave   : AxiLiteReadSlaveType;
    signal axilWriteMaster : AxiLiteWriteMasterType;
@@ -141,10 +127,11 @@ architecture top_level of SmurfSlacPgpCardG4RssiOffload10GbE is
 
    signal dmaClk       : sl;
    signal dmaRst       : sl;
-   signal dmaObMasters : AxiStreamMasterArray(NUM_RSSI_C downto 0);
-   signal dmaObSlaves  : AxiStreamSlaveArray(NUM_RSSI_C downto 0);
-   signal dmaIbMasters : AxiStreamMasterArray(NUM_RSSI_C downto 0);
-   signal dmaIbSlaves  : AxiStreamSlaveArray(NUM_RSSI_C downto 0);
+   signal dmaBuffGrpPause : slv(7 downto 0);
+   signal dmaObMasters : AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
+   signal dmaObSlaves  : AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
+   signal dmaIbMasters : AxiStreamMasterArray(NUM_RSSI_C-1 downto 0);
+   signal dmaIbSlaves  : AxiStreamSlaveArray(NUM_RSSI_C-1 downto 0);
 
 begin
 
@@ -189,14 +176,15 @@ begin
          TPD_G             => TPD_G,
          BUILD_INFO_G      => BUILD_INFO_G,
          DMA_AXIS_CONFIG_G => APP_AXIS_CONFIG_C,
-         DMA_SIZE_G        => NUM_RSSI_C+1)
+         DMA_SIZE_G        => NUM_RSSI_C)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------        
+         ------------------------
          -- DMA Interfaces
          dmaClk         => dmaClk,
          dmaRst         => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters   => dmaObMasters,
          dmaObSlaves    => dmaObSlaves,
          dmaIbMasters   => dmaIbMasters,
@@ -210,16 +198,16 @@ begin
          appWriteSlave  => axilWriteSlave,
          --------------
          --  Core Ports
-         --------------   
+         --------------
          -- System Ports
          emcClk         => emcClk,
-         -- Boot Memory Ports 
+         -- Boot Memory Ports
          flashCsL       => flashCsL,
          flashMosi      => flashMosi,
          flashMiso      => flashMiso,
          flashHoldL     => flashHoldL,
          flashWp        => flashWp,
-         -- PCIe Ports 
+         -- PCIe Ports
          pciRstL        => pciRstL,
          pciRefClkP     => pciRefClkP,
          pciRefClkN     => pciRefClkN,
@@ -258,9 +246,9 @@ begin
          CLK_FREQUENCY_G => CLK_FREQUENCY_C,
          AXI_BASE_ADDR_G => AXIL_CONFIG_C(4).baseAddr)
       port map (
-         ------------------------      
+         ------------------------
          --  Top Level Interfaces
-         ------------------------         
+         ------------------------
          -- AXI-Lite Interface (axilClk domain)
          axilClk         => axilClk,
          axilRst         => axilRst,
@@ -271,13 +259,14 @@ begin
          -- DMA Interface (dmaClk domain)
          dmaClk          => dmaClk,
          dmaRst          => dmaRst,
+         dmaBuffGrpPause => dmaBuffGrpPause,
          dmaObMasters    => dmaObMasters,
          dmaObSlaves     => dmaObSlaves,
          dmaIbMasters    => dmaIbMasters,
          dmaIbSlaves     => dmaIbSlaves,
          ------------------
          --  Hardware Ports
-         ------------------       
+         ------------------
          -- QSFP[1:0] Ports
          qsfpRefClkP     => qsfpRefClkP,
          qsfpRefClkN     => qsfpRefClkN,
