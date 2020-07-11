@@ -27,7 +27,8 @@ use work.AppPkg.all;
 
 entity DmaAsyncFifo is
    generic (
-      TPD_G : time := 1 ns);
+      TPD_G   : time    := 1 ns;
+      INDEX_G : natural := 0);
    port (
       -- UDP Outbound Config Interface (axiClk domain)
       udpObMuxSel        : in  sl;
@@ -65,13 +66,16 @@ end DmaAsyncFifo;
 
 architecture mapping of DmaAsyncFifo is
 
-   constant TDEST_ROUTES_C : Slv8Array(CLIENT_SIZE_C-1 downto 0) := (
-      1 => "--------",
-      0 => "--------");
+   constant UDP_INDEX_C  : natural := 0;
+   constant RSSI_INDEX_C : natural := 1;
+
+   constant TDEST_ROUTES_C : Slv8Array(1 downto 0) := (
+      UDP_INDEX_C  => "--------",
+      RSSI_INDEX_C => "--------");
 
    constant TID_ROUTES_C : Slv8Array(1 downto 0) := (
-      0 => x"01",
-      1 => x"00");
+      UDP_INDEX_C  => x"07",               -- UDP
+      RSSI_INDEX_C => toSlv(INDEX_G, 8));  -- RSSI
 
    signal rssiTxMaster : AxiStreamMasterType;
    signal rssiTxSlave  : AxiStreamSlaveType;
@@ -176,8 +180,8 @@ begin
          -- Master Port
          mAxisClk    => dmaPriClk,
          mAxisRst    => dmaPriReset,
-         mAxisMaster => dmaPriIbMasters(1),
-         mAxisSlave  => dmaPriIbSlaves(1));
+         mAxisMaster => dmaPriIbMasters(RSSI_INDEX_C),
+         mAxisSlave  => dmaPriIbSlaves(RSSI_INDEX_C));
 
    U_IB_DMA_0 : entity surf.AxiStreamFifoV2
       generic map (
@@ -201,8 +205,8 @@ begin
          -- Master Port
          mAxisClk    => dmaPriClk,
          mAxisRst    => dmaPriReset,
-         mAxisMaster => dmaPriIbMasters(0),
-         mAxisSlave  => dmaPriIbSlaves(0));
+         mAxisMaster => dmaPriIbMasters(UDP_INDEX_C),
+         mAxisSlave  => dmaPriIbSlaves(UDP_INDEX_C));
 
    U_AxiStreamMux : entity surf.AxiStreamMux
       generic map (

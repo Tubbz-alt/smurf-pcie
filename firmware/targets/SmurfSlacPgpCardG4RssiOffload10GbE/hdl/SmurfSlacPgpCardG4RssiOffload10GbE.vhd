@@ -2,21 +2,11 @@
 -- File       : SmurfSlacPgpCardG4RssiOffload10GbE.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
--- Buffer Pause Group:
+-- DMA and Buffer Pause Group Mapping:
 --
---    Group[0]   = TDEST != 0xC1
---    Group[1]   = TDEST == 0xC1
---    Group[7:2] = Unused
---
--------------------------------------------------------------------------------
--- DMA Mapping:
---
---    DMA[Lane=0]: UDP[Lane=0]
---    DMA[Lane=1]: UDP[Lane=1]
---    DMA[Lane=2]: UDP[Lane=2]
---    DMA[Lane=3]: UDP[Lane=3]
---    DMA[Lane=4]: UDP[Lane=4]
---    DMA[Lane=5]: UDP[Lane=5]
+--    for i in range(6):
+--       DMA[Lane=i](TDEST!=0xC1): RSSI[Lane=i](BufferPauseGroup[i])
+--       DMA[Lane=i](TDEST==0xC1):  UDP[Lane=i](BufferPauseGroup[7])
 --
 -------------------------------------------------------------------------------
 -- This file is part of 'SMURF PCIE'.

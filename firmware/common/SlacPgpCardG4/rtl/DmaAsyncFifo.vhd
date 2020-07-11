@@ -25,7 +25,8 @@ use work.AppPkg.all;
 
 entity DmaAsyncFifo is
    generic (
-      TPD_G : time := 1 ns);
+      TPD_G   : time    := 1 ns;
+      INDEX_G : natural := 0);
    port (
       -- DMA Interface (dmaClk domain)
       dmaClk          : in  sl;
@@ -50,13 +51,16 @@ end DmaAsyncFifo;
 
 architecture mapping of DmaAsyncFifo is
 
+   constant UDP_INDEX_C  : natural := 0;
+   constant RSSI_INDEX_C : natural := 1;
+
    constant TDEST_ROUTES_C : Slv8Array(1 downto 0) := (
-      0 => x"C1",
-      1 => "--------");
+      UDP_INDEX_C  => x"C1",
+      RSSI_INDEX_C => "--------");
 
    constant TID_ROUTES_C : Slv8Array(1 downto 0) := (
-      0 => x"01",
-      1 => x"00");
+      UDP_INDEX_C  => x"07",               -- UDP
+      RSSI_INDEX_C => toSlv(INDEX_G, 8));  -- RSSI
 
    signal dmaIbMasters : AxiStreamMasterArray(1 downto 0);
    signal dmaIbSlaves  : AxiStreamSlaveArray(1 downto 0);
@@ -115,8 +119,8 @@ begin
          -- Master Port
          mAxisClk    => dmaClk,
          mAxisRst    => dmaReset,
-         mAxisMaster => dmaIbMasters(1),
-         mAxisSlave  => dmaIbSlaves(1));
+         mAxisMaster => dmaIbMasters(RSSI_INDEX_C),
+         mAxisSlave  => dmaIbSlaves(RSSI_INDEX_C));
 
    U_IB_DMA_0 : entity surf.AxiStreamFifoV2
       generic map (
@@ -140,8 +144,8 @@ begin
          -- Master Port
          mAxisClk    => dmaClk,
          mAxisRst    => dmaReset,
-         mAxisMaster => dmaIbMasters(0),
-         mAxisSlave  => dmaIbSlaves(0));
+         mAxisMaster => dmaIbMasters(UDP_INDEX_C),
+         mAxisSlave  => dmaIbSlaves(UDP_INDEX_C));
 
    U_AxiStreamMux : entity surf.AxiStreamMux
       generic map (
@@ -206,8 +210,8 @@ begin
          -- Slave Port
          sAxisClk    => dmaClk,
          sAxisRst    => dmaReset,
-         sAxisMaster => dmaObMasters(1),
-         sAxisSlave  => dmaObSlaves(1),
+         sAxisMaster => dmaObMasters(RSSI_INDEX_C),
+         sAxisSlave  => dmaObSlaves(RSSI_INDEX_C),
          -- Master Port
          mAxisClk    => axilClk,
          mAxisRst    => axilReset,
@@ -231,8 +235,8 @@ begin
          -- Slave Port
          sAxisClk    => dmaClk,
          sAxisRst    => dmaReset,
-         sAxisMaster => dmaObMasters(0),
-         sAxisSlave  => dmaObSlaves(0),
+         sAxisMaster => dmaObMasters(UDP_INDEX_C),
+         sAxisSlave  => dmaObSlaves(UDP_INDEX_C),
          -- Master Port
          mAxisClk    => axilClk,
          mAxisRst    => axilReset,

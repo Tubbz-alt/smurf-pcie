@@ -2,6 +2,13 @@
 -- File       : SmurfKcu1500RssiOffload10GbE.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -------------------------------------------------------------------------------
+-- DMA and Buffer Pause Group Mapping:
+--
+--    for i in range(6):
+--       DMA[Lane=i](TDEST!=0xC1): RSSI[Lane=i](BufferPauseGroup[i])
+--       DMA[Lane=i](TDEST==0xC1):  UDP[Lane=i](BufferPauseGroup[7])
+--
+-------------------------------------------------------------------------------
 -- This file is part of 'SMURF PCIE'.
 -- It is subject to the license terms in the LICENSE.txt file found in the
 -- top-level directory of this distribution and at:

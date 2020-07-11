@@ -126,7 +126,8 @@ begin
    GEN_DMA : for i in NUM_RSSI_C-1 downto 0 generate
       U_DmaAsyncFifo : entity work.DmaAsyncFifo
          generic map (
-            TPD_G => TPD_G)
+            TPD_G   => TPD_G,
+            INDEX_G => i)
          port map (
             -- Clocks and Resets
             -- DMA Interface (dmaClk domain)
